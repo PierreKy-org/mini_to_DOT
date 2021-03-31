@@ -8,17 +8,20 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 
 %{
 #include <stdio.h>
-#include "y.tab.h"
+#include "miniC.tab.h"
 
 
 /* Ne gère pas les commentaires. A rajouter */
 /* Supprimer les lignes dont vous n'avez pas besoin. */
+/*flex ANSI-C.l
+  gcc lex.yy.c -o nom -lfl
+  ./lel < exempleminiC.c
+*/
 
 %}
 
 %%
 
-/* Partie des mots à transfomer en tokens */
 "extern"                { printf("extern.\n"); return EXTERN; }
 "int"                   { printf("int.\n"); return INT; }
 "void"                  { printf("void.\n"); return VOID; }
@@ -34,25 +37,25 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 "return"                { printf("return.\n"); return RETURN; }
 
 {D}*                    { printf("number.\n"); return NUMBER; }
-{L}({L}|{D})*           { printf("identifier.\n"); return IDENTIFIER; }
+{L}({L}|{D})*           { printf("identifier.\n"); return IDENTIFICATEUR; }
 {D}+{IS}?               { printf("CONSTANT:%s",yytext);}
 
 0[xX]{H}+{IS}?          { printf("number hexa.\n"); return NUMBER; }
-"&&"                    { printf("and operation.\n"); return AND_OP; }
-"||"                    { printf("or operation.\n"); return OR_OP; }
-"<="                    { printf("less equal operation.\n"); return LE_OP; }
-">="                    { printf("great equal operation.\n"); return GE_OP;}
-"=="                    { printf("equal operation.\n"); return EQ_OP; }
-"!="                    { printf("not equal operation.\n"); return NE_OP; }
-"("|")"|"{"|"}"   { printf(" %c ",yytext[0]);}
-"*"|"-"|"/"|"+"   { printf(" %c ",yytext[0]);}
-"<"|">"|"="|"&"   { printf(" %c ",yytext[0]);}
-","|";"|"."       { printf(" %c ",yytext[0]);}
+\/\*[^\*\/]*\*\/      { printf("commentaire");}      
+"&&"                    { printf("and operation.\n"); return LAND; }
+"||"                    { printf("or operation.\n"); return LOR; }
+"<="                    { printf("less equal operation.\n"); return LEQ; }
+">="                    { printf("great equal operation.\n"); return GEQ;}
+"=="                    { printf("equal operation.\n"); return EQ; }
+"!="                    { printf("not equal operation.\n"); return NEQ; }
+"("|")"|"{"|"}"   { printf("%c",yytext[0]);}
+"*"|"-"|"/"|"+"   { printf("%c",yytext[0]);}
+"<"|">"|"="|"&"   { printf("%c",yytext[0]);}
+","|";"|"."       { printf("%c",yytext[0]);}
+
 
 [ \t\v\n\f\r]     { printf("%c",yytext[0]);}
 
-
-" "			{ printf("");}
-.                       { printf("Erreur lexicale.\n"); }
-.                       { return yytext[0]; }
+.                       { printf("Erreur lexicale.\n");return yytext[0]; }
 %%
+
