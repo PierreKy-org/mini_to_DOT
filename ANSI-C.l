@@ -36,7 +36,7 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 "break"                 { printf("break. "); return BREAK; }
 "return"                { printf("return. "); return RETURN; }
 ";"						{ printf("; \n"); }
-{D}+|"-"{D}+          { printf("number. "); return NUMBER; }
+{D}+          			{ printf("number. "); return NUMBER; }
 {L}({L}|{D})*           { printf("identifier. "); return IDENTIFICATEUR; }
 {D}+{IS}?               { printf("CONSTANT:%s",yytext);}
 
@@ -48,6 +48,9 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 ">="                    { printf("great equal operation. "); return GEQ;}
 "=="                    { printf("equal operation. "); return EQ; }
 "!="                    { printf("not equal operation. "); return NEQ; }
+"<<"                    { printf("binary left operation. "); return BLO; }
+">>"                    { printf("binary right operation. "); return BRO; }
+"["{D}+"]"				{ printf("%c",yytext[0]); return CROCHET; }
 "("|")"|"{"|"}"   { printf("%c",yytext[0]);}
 "*"|"-"|"/"|"+"   { printf("%c",yytext[0]);}
 "<"|">"|"="|"&"   { printf("%c",yytext[0]);}
