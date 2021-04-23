@@ -36,7 +36,7 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 "break"                 { printf("break. "); return BREAK; }
 "return"                { printf("return. "); return RETURN; }
 ";"						{ printf("; \n"); }
-{D}+          			{ printf("number. "); return NUMBER; }
+-?{D}+          			{ printf("number. "); return NUMBER; }
 {L}({L}|{D})*           { printf("identifier. "); return IDENTIFICATEUR; }
 {D}+{IS}?               { printf("CONSTANT:%s",yytext);}
 
