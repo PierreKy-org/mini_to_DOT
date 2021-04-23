@@ -1,6 +1,8 @@
 # mini_to_DOT
 
 ## Utilisation : 
-1) aller dans src
-2) make compiler
-3) make run
+1) aller dans Sources
+2) aller dans Lexical analysis ou Syntaxic analysis
+
+make compiler
+make run

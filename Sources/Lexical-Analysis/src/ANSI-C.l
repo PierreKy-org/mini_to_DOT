@@ -8,15 +8,7 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 
 %{
 #include <stdio.h>
-#include "miniC.tab.h"
 
-
-/* Ne gère pas les commentaires. A rajouter */
-/* Supprimer les lignes dont vous n'avez pas besoin. */
-/*flex ANSI-C.l
-  gcc lex.yy.c -o nom -lfl
-  ./lel < exempleminiC.c
-*/
 
 %}
 
