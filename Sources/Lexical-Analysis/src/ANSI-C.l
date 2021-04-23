@@ -8,41 +8,41 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 
 %{
 #include <stdio.h>
+#include <stdlib.h>
 
 
 %}
 
 %%
-
-"extern"                { printf("extern. "); return EXTERN; }
-"int"                   { printf("int. "); return INT; }
-"void"                  { printf("void. "); return VOID; }
-"for"                   { printf("for. "); return FOR; }
-"while"                 { printf("while. "); return WHILE; }
-"if"                    { printf("if. "); return IF; }
-"then"                  { printf("then. "); return THEN; }
-"else"                  { printf("else. "); return ELSE; }
-"switch"                { printf("switch. "); return SWITCH; }
-"case"                  { printf("case. "); return CASE; }
-"default"               { printf("default. "); return DEFAULT; }
-"break"                 { printf("break. "); return BREAK; }
-"return"                { printf("return. "); return RETURN; }
-";"						{ printf("; \n"); }
--?{D}+          			{ printf("number. "); return NUMBER; }
-{L}({L}|{D})*           { printf("identifier. "); return IDENTIFICATEUR; }
+"extern"                { printf("extern"); }
+"int"                   { printf("int"); }
+"void"                  { printf("void");}
+"for"                   { printf("for");}
+"while"                 { printf("while"); }
+"if"                    { printf("if"); }
+"then"                  { printf("then");}
+"else"                  { printf("else");}
+"switch"                { printf("switch");}
+"case"                  { printf("case"); }
+"default"               { printf("default");}
+"break"                 { printf("break"); }
+"return"                { printf("return");}
+";"						{ printf(";"); }
+-?{D}+          		{ printf("number"); }
+{L}({L}|{D})*           { printf("identifier"); }
 {D}+{IS}?               { printf("CONSTANT:%s",yytext);}
 
-0[xX]{H}+{IS}?          { printf("number hexa. "); return NUMBER; }
+0[xX]{H}+{IS}?          { printf("number hexa"); }
 "/*"([^*]|(\*[^/]))*"*/"     { printf("commentaire");}      
-"&&"                    { printf("and operation. "); return LAND; }
-"||"                    { printf("or operation. "); return LOR; }
-"<="                    { printf("less equal operation. "); return LEQ; }
-">="                    { printf("great equal operation. "); return GEQ;}
-"=="                    { printf("equal operation. "); return EQ; }
-"!="                    { printf("not equal operation. "); return NEQ; }
-"<<"                    { printf("binary left operation. "); return BLO; }
-">>"                    { printf("binary right operation. "); return BRO; }
-"["{D}+"]"				{ printf("%c",yytext[0]); return CROCHET; }
+"&&"                    { printf("and operation"); }
+"||"                    { printf("or operation");  }
+"<="                    { printf("less equal operation");  }
+">="                    { printf("great equal operation"); }
+"=="                    { printf("equal operation");  }
+"!="                    { printf("not equal operation");  }
+"<<"                    { printf("binary left operation");  }
+">>"                    { printf("binary right operation"); }
+"["{D}+"]"				{ printf("%c",yytext[0]); }
 "("|")"|"{"|"}"   { printf("%c",yytext[0]);}
 "*"|"-"|"/"|"+"   { printf("%c",yytext[0]);}
 "<"|">"|"="|"&"   { printf("%c",yytext[0]);}
@@ -53,3 +53,4 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 
 .                       { printf("Erreur lexicale.\n");return yytext[0]; }
 %%
+

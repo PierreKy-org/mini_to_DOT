@@ -1,15 +1,12 @@
-compiler :	lex.yy.c miniC
-	@gcc lex.yy.c -o compiler -lfl 
+compiler :	lex.yy.c 
+	@gcc lex.yy.c -o compiler -ll 
 	@echo "Un compilateur a été créé : compiler"
-	
-miniC : 
-	@bison -d miniC.y
 
 lex.yy.c :	ANSI-C.l
 	@flex ANSI-C.l
 
 clean :
-	@rm lex.yy.c miniC.tab.c miniC.tab.h compiler 
+	@rm lex.yy.c compiler 
 	@echo "Suppression des fichiers effectuée."
 
 run  :

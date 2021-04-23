@@ -8,6 +8,7 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 
 %{
 #include <stdio.h>
+#include "miniC.tab.h"
 
 
 %}
