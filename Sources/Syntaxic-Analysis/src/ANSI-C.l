@@ -28,13 +28,12 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 "default"               { printf("default "); return DEFAULT; }
 "break"                 { printf("break "); return BREAK; }
 "return"                { printf("return "); return RETURN; }
-";"						{ printf("; \n"); }
--?{D}+          			{ printf("number "); return NUMBER; }
+{D}+          			   { printf("number "); return NUMBER; }
 {L}({L}|{D})*           { printf("identifier "); return IDENTIFICATEUR; }
 {D}+{IS}?               { printf("CONSTANT:%s",yytext);}
 
 0[xX]{H}+{IS}?          { printf("number hexa "); return NUMBER; }
-"/*"([^*]|(\*[^/]))*"*/"     { printf("commentaire");}      
+COM                     { printf("commentaire");}      
 "&&"                    { printf("and operation "); return LAND; }
 "||"                    { printf("or operation "); return LOR; }
 "<="                    { printf("less equal operation "); return LEQ; }
@@ -43,18 +42,14 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 "!="                    { printf("not equal operation "); return NEQ; }
 "<<"                    { printf("binary left operation "); return BLO; }
 ">>"                    { printf("binary right operation "); return BRO; }
-"["{D}+"]"				{ printf("%c",yytext[0]); return CROCHET; }
-"("|")"|"{"|"}"   { printf("%c",yytext[0]);}
-"*"|"-"|"/"|"+"   { printf("%c",yytext[0]);}
-"<"|">"|"="|"&"   { printf("%c",yytext[0]);}
-","|"."|":"      { printf("%c",yytext[0]);}
+"["{D}+"]"			      	{ printf("%c",yytext[0]); return CROCHET; }
+"("|")"|"{"|"}"        	{ printf(" %c ",yytext[0]);return yytext[0];}
+"*"|"-"|"/"|"+"   	    { printf(" %c ",yytext[0]);return yytext[0];}
+"<"|">"|"="|"&"       	{ printf(" %c ",yytext[0]);return yytext[0];}
+","|";"|":"	          	{ printf(" %c ",yytext[0]);return yytext[0];}
 
 
-[ \t\v\n\f\r]     { printf("%c",yytext[0]);}
+[ \t\v\n\f\r]           { printf("%c",yytext[0]);}
 
 .                       { printf("Erreur lexicale\n");return yytext[0]; }
 %%
-
- void yyerror (char const *s) {
-   fprintf (stderr, "%s\n", s);
- }

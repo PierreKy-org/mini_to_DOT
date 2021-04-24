@@ -14,6 +14,7 @@ clean :
 
 run  :
 	@echo "===============================\nTest du fichier add.c :\n"
+	@pwd
 	@./compiler < ../Tests/add.c
 
 	@echo "===============================\nTest du fichier break.c :\n"

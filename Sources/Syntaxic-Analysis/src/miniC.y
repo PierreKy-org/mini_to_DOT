@@ -1,4 +1,7 @@
 %{
+#include <stdio.h>
+#include <stdlib.h>
+
 %}
 %token IDENTIFICATEUR CONSTANTE VOID INT FOR WHILE IF ELSE SWITCH CASE DEFAULT NUMBER
 %token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT BAND BOR LAND LOR LT GT BLO BRO CROCHET
@@ -13,6 +16,7 @@
 %left OP
 %left REL
 %start programme
+
 %%
 programme	:	
 		liste_declarations liste_fonctions
@@ -45,7 +49,8 @@ type	:
 	|	INT
 ;
 liste_parms	:	
-		liste_parms ',' parm
+	 	parm
+	|	liste_parms ',' parm
 	|	
 ;
 parm	:	
@@ -133,3 +138,14 @@ binary_comp	:
 	|	NEQ
 ;
 %%
+
+void yyerror (char *s) {
+	fprintf (stderr, "%s\n", s);
+	exit(2);
+}
+
+int main (){
+		yyparse();
+		printf("Success.\n");
+		return 0;
+}
