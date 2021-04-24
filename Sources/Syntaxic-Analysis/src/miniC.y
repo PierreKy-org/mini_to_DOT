@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 %}
-%token IDENTIFICATEUR CONSTANTE VOID INT FOR WHILE IF ELSE SWITCH CASE DEFAULT NUMBER
+%token IDENTIFICATEUR CONSTANTE VOID INT FOR WHILE IF ELSE SWITCH CASE DEFAULT 
 %token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT BAND BOR LAND LOR LT GT BLO BRO CROCHET
 %token GEQ LEQ EQ NEQ NOT EXTERN
 %left PLUS MOINS
@@ -85,7 +85,7 @@ saut	:
 	|	RETURN expression ';'
 ;
 affectation	:	
-		variable '=' expression
+		variable '=' expression ';'
 ;
 bloc	:	
 		'{' liste_declarations liste_instructions '}'
@@ -140,7 +140,7 @@ binary_comp	:
 %%
 
 void yyerror (char *s) {
-	fprintf (stderr, "%s\n", s);
+	fprintf (stderr, "%s\n", s);	
 	exit(2);
 }
 
