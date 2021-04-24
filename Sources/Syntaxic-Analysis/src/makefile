@@ -1,8 +1,8 @@
-compiler :	lex.yy.c miniC
-	@gcc lex.yy.c -o compiler -lfl 
+compiler :	lex.yy.c miniC.tab.c
+	@gcc lex.yy.c miniC.tab.c -o compiler -ll 
 	@echo "Un compilateur a été créé : compiler"
 	
-miniC : 
+miniC.tab.c : 
 	@bison -d miniC.y
 
 lex.yy.c :	ANSI-C.l
