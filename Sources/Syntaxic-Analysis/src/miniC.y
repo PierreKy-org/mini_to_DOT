@@ -85,7 +85,7 @@ saut	:
 	|	RETURN expression ';'
 ;
 affectation	:	
-		variable '=' expression ';'
+		variable '=' expression 
 ;
 bloc	:	
 		'{' liste_declarations liste_instructions '}'
@@ -99,8 +99,9 @@ variable	:
 ;
 expression	:	
 		'(' expression ')'
-	|	expression binary_op expression %prec OP
+	|	MOINS CONSTANTE
 	|	MOINS expression
+	|	expression binary_op expression %prec OP
 	|	CONSTANTE
 	|	variable
 	|	IDENTIFICATEUR '(' liste_expressions ')'

@@ -30,9 +30,9 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 "return"                { printf("return "); return RETURN; }
 {L}({L}|{D})*           { printf("identifier "); return IDENTIFICATEUR; }
 {D}+{IS}?               { printf("CONSTANTE "); return CONSTANTE; }
-
 0[xX]{H}+{IS}?          { printf("const hexa "); return CONSTANTE; }
 {COM}                   { printf("commentaire");}      
+
 "&&"                    { printf("and operation "); return LAND; }
 "||"                    { printf("or operation "); return LOR; }
 "<="                    { printf("less equal operation "); return LEQ; }
@@ -43,7 +43,10 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 ">>"                    { printf("binary right operation "); return BRO; }
 "["{D}*"]"			      	{ printf("%c",yytext[0]); return CROCHET; }
 "("|")"|"{"|"}"        	{ printf(" %c ",yytext[0]);return yytext[0];}
-"*"|"-"|"/"|"+"   	    { printf(" %c ",yytext[0]);return yytext[0];}
+"*"                     { printf(" MUL ");return MUL;}
+"-"                     { printf(" MOINS ");return MOINS;}
+"/"                     { printf(" DIV ");return DIV;}
+"+"   	                { printf(" PLUS ");return PLUS;}
 "<"|">"|"="|"&"       	{ printf(" %c ",yytext[0]);return yytext[0];}
 ","|";"|":"	          	{ printf(" %c ",yytext[0]);return yytext[0];}
 
@@ -52,3 +55,4 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 
 .                       { printf("Erreur lexicale\n");return yytext[0]; }
 %%
+//Penser à ajouter les +=, -=, /= et *=
