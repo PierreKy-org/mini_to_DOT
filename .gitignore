@@ -4,3 +4,5 @@
 # lex and yacc automatically generated files.
 lex.yy.c
 miniC.tab.*
+compiler
+*.output

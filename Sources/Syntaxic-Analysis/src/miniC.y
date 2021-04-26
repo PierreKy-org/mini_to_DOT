@@ -5,7 +5,7 @@
 
 %}
 %token IDENTIFICATEUR CONSTANTE VOID INT FOR WHILE IF ELSE SWITCH CASE DEFAULT
-%token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT BAND BOR LAND LOR LT GT BLO BRO CROCHET
+%token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT BAND BOR LAND LOR LT GT 
 %token GEQ LEQ EQ NEQ NOT EXTERN
 %left PLUS MOINS
 %left MUL DIV
@@ -51,7 +51,6 @@ type	:
 
 liste_parms :      // pour accepter epsilon ou une liste d'expressions
     parms-liste-creator
-    | 
 
 parms-liste-creator :                         // création de la liste d'expressions valide
     parms-liste-creator , parm  // liste à n éléments

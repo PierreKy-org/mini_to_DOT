@@ -3,13 +3,13 @@ compiler :	lex.yy.c miniC.tab.c
 	@echo "Un compilateur a été créé : compiler"
 	
 miniC.tab.c : 
-	@bison -d miniC.y
+	@bison  -vd miniC.y
 
 lex.yy.c :	ANSI-C.l
 	@flex ANSI-C.l
 
 clean :
-	@rm lex.yy.c miniC.tab.c miniC.tab.h compiler 
+	@rm lex.yy.c miniC.tab.c miniC.tab.h compiler *.output
 	@echo "Suppression des fichiers effectuée."
 
 run  :
