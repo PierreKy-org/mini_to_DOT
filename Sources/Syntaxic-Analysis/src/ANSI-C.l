@@ -41,13 +41,12 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 "!="                    { printf("not equal operation "); return NEQ; }
 "<<"                    { printf("binary left shift operation "); return LSHIFT; }
 ">>"                    { printf("binary right shift operation "); return RSHIFT; }
-"["{D}*"]"			      	{ printf("%c",yytext[0]); return CROCHET; }
 "("|")"|"{"|"}"        	{ printf(" %c ",yytext[0]);return yytext[0];}
 "*"                     { printf(" MUL ");return MUL;}
 "-"                     { printf(" MOINS ");return MOINS;}
 "/"                     { printf(" DIV ");return DIV;}
 "+"   	                { printf(" PLUS ");return PLUS;}
-"="|"&"       	{ printf(" %c ",yytext[0]);return yytext[0];}
+"="|"&"|"["|"]"      	{ printf(" %c ",yytext[0]);return yytext[0];}
 "<"                    	{ printf(" %c ",yytext[0]);return LT;}
 ">"                    	{ printf(" %c ",yytext[0]);return GT;}
 ","|";"|":"	          	{ printf(" %c ",yytext[0]);return yytext[0];}
