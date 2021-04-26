@@ -129,11 +129,11 @@ condition	:
 ;
 binary_op	:	
 		PLUS
-	|       MOINS
+	|   MOINS
 	|	MUL
 	|	DIV
-	|       LSHIFT
-	|       RSHIFT
+	|   LSHIFT
+	|   RSHIFT
 	|	BAND
 	|	BOR
 ;
