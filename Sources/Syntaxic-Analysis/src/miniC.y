@@ -1,9 +1,10 @@
 %{
+
 #include <stdio.h>
 #include <stdlib.h>
 
 %}
-%token IDENTIFICATEUR CONSTANTE VOID INT FOR WHILE IF ELSE SWITCH CASE DEFAULT 
+%token IDENTIFICATEUR CONSTANTE VOID INT FOR WHILE IF ELSE SWITCH CASE DEFAULT
 %token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT BAND BOR LAND LOR LT GT BLO BRO CROCHET
 %token GEQ LEQ EQ NEQ NOT EXTERN
 %left PLUS MOINS
@@ -16,7 +17,6 @@
 %left OP
 %left REL
 %start programme
-
 %%
 programme	:	
 		liste_declarations liste_fonctions
@@ -48,9 +48,16 @@ type	:
 		VOID
 	|	INT
 ;
+
+liste_parms :      // pour accepter epsilon ou une liste d'expressions
+    parms-liste-creator
+    | 
+
+parms-liste-creator :                         // création de la liste d'expressions valide
+    parms-liste-creator , parm  // liste à n éléments
+    | parm                            // liste à un seul élément
 liste_parms	:	
-	 	parm
-	|	liste_parms ',' parm
+		liste_parms ',' parm
 	|	
 ;
 parm	:	
@@ -85,7 +92,7 @@ saut	:
 	|	RETURN expression ';'
 ;
 affectation	:	
-		variable '=' expression 
+		variable '=' expression
 ;
 bloc	:	
 		'{' liste_declarations liste_instructions '}'
@@ -99,17 +106,21 @@ variable	:
 ;
 expression	:	
 		'(' expression ')'
-	|	MOINS CONSTANTE
-	|	MOINS expression
 	|	expression binary_op expression %prec OP
+	|	MOINS expression
 	|	CONSTANTE
 	|	variable
 	|	IDENTIFICATEUR '(' liste_expressions ')'
 ;
-liste_expressions	:	
-		liste_expressions ',' expression
-	|
-;
+
+liste_expressions :      // pour accepter epsilon ou une liste d'expressions
+    expr-liste-creator
+    | 
+
+expr-liste-creator :                         // création de la liste d'expressions valide
+    expr-liste-creator , expression  // liste à n éléments
+    | expression                              // liste à un seul élément
+
 condition	:	
 		NOT '(' condition ')'
 	|	condition binary_rel condition %prec REL
