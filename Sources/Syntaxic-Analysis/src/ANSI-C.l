@@ -39,8 +39,8 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 ">="                    { printf("great equal operation "); return GEQ;}
 "=="                    { printf("equal operation "); return EQ; }
 "!="                    { printf("not equal operation "); return NEQ; }
-"<<"                    { printf("binary left operation "); return BLO; }
-">>"                    { printf("binary right operation "); return BRO; }
+"<<"                    { printf("binary left shift operation "); return LSHIFT; }
+">>"                    { printf("binary right shift operation "); return RSHIFT; }
 "["{D}*"]"			      	{ printf("%c",yytext[0]); return CROCHET; }
 "("|")"|"{"|"}"        	{ printf(" %c ",yytext[0]);return yytext[0];}
 "*"                     { printf(" MUL ");return MUL;}
