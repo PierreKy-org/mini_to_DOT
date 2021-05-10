@@ -2,7 +2,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "linked_list.c"
+
+#include "hash_tab.c"
 int yylex();
 void yyerror (char *s) {
 	fprintf (stderr, "%s\n", s);	
@@ -166,5 +167,16 @@ int main (){
 		head->next->type = "string";
 		head->next->next = NULL;
 		print_list(head);
+
+		dummyItem = (struct DataItem*) malloc(sizeof(struct DataItem));
+		dummyItem->data = head;  
+		dummyItem->key = 1; 
+		node_t * head2 = NULL;
+		head2 = (node_t *) malloc(sizeof(node_t));
+		head2->val = 5;
+		head2->type = "int";
+		insert(1, head);
+
+		display();
 		return 0;
 }
