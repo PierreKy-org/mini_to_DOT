@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "linked_list.c"
 int yylex();
 void yyerror (char *s) {
 	fprintf (stderr, "%s\n", s);	
@@ -152,5 +153,18 @@ binary_comp	:
 int main (){
 		yyparse();
 		printf("Success.\n");
+		node_t * head = NULL;
+		head = (node_t *) malloc(sizeof(node_t));
+		if (head == NULL) {
+			return 1;
+		}
+
+		head->val = 1;
+		head->type = "int";
+		head->next = (node_t *) malloc(sizeof(node_t));
+		head->next->val = 2;
+		head->next->type = "string";
+		head->next->next = NULL;
+		print_list(head);
 		return 0;
 }
