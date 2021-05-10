@@ -64,5 +64,13 @@ int remove_by_index(node_t ** head, int n) {
     free(temp_node);
 
     return retval;
+}
 
+node_t* makeLinkedList(int val, char* type){
+    node_t * head = NULL;
+    head = (node_t *) malloc(sizeof(node_t));
+    head->val = val;
+    head->type = type;
+    head->next = NULL;
+    return head;
 }

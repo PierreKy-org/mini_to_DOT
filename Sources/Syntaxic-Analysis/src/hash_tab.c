@@ -6,45 +6,41 @@
 #define SIZE 103
 #define CAPACITY 50000 // Size of the Hash Table
 
-struct DataItem* hashArray[SIZE]; 
-struct DataItem* dummyItem;
-struct DataItem* item;
+
  
 int hash_function(int key) {
    return key % SIZE;
 }
 
-struct DataItem *search(int key) {
+node_t search(node_t* tab,int key) {
    //get the hash 
    int hashIndex = hash_function(key);  
-	
+	int i =0; 
    //move in array until an empty 
-   while(hashArray[hashIndex] != NULL) {
+   while(tab[i].val != NULL) {
 	
-      if(hashArray[hashIndex]->key == key)
-         return hashArray[hashIndex]; 
+      if(i == hashIndex)
+         return tab[i]; 
 			
       //go to next cell
-      ++hashIndex;
+      ++i;
 		
       //wrap around the table
-      hashIndex %= SIZE;
+      i %= SIZE;
    }        
-	
-   return NULL;        
+	node_t t;
+   t.val = NULL;
+   t.next = NULL;
+   t.type = NULL;
+   return t ;        
 }
 
-void insert(int key,node_t* data) {
-
-   struct DataItem *item = (struct DataItem*) malloc(sizeof(struct DataItem));
-   item->data = data;  
-   item->key = key;
+void insert(node_t* tab,int key,node_t* data) {
 
    //get the hash 
    int hashIndex = hash_function(key);
-
    //move in array until an empty or deleted cell
-   while(hashArray[hashIndex] != NULL && hashArray[hashIndex]->key != -1) {
+   while(tab[hashIndex].val != NULL && hashIndex != 99) {
       //go to next cell
       ++hashIndex;
 		
@@ -52,53 +48,33 @@ void insert(int key,node_t* data) {
       hashIndex %= SIZE;
    }
 	
-   hashArray[hashIndex] = item;
+   tab[hashIndex] = *data;
 }
 
-struct DataItem* delete(struct DataItem* item) {
-   int key = item->key;
+ 
 
-   //get the hash 
-   int hashIndex = hash_function(key);
-
-   //move in array until an empty
-   while(hashArray[hashIndex] != NULL) {
-	
-      if(hashArray[hashIndex]->key == key) {
-         struct DataItem* temp = hashArray[hashIndex]; 
-			
-         //assign a dummy item at deleted position
-         hashArray[hashIndex] = dummyItem; 
-         return temp;
-      }
-		
-      //go to next cell
-      ++hashIndex;
-		
-      //wrap around the table
-      hashIndex %= SIZE;
-   }      
-	
-   return NULL;        
-}
-
-void display() {
+void display(node_t* tab) {
    int i = 0;
 	
    for(i = 0; i<SIZE; i++) {
 	
-      if(hashArray[i] != NULL){
-         printf(" (%d,%s,%d)",hashArray[i]->key,hashArray[i]->data->type,hashArray[i]->data->val);
+      if(tab[i].val != NULL){
+         printf(" (%d,%s,%d)",i,tab[i].type,tab[i].val);
          
          //La valeur du deuxieme element de la liste chainée
-         /*if(hashArray[i]->data->next != NULL){
+         if(tab[i].next != NULL){
             printf("lol");
-            printf(" (%d,%s,%d)",hashArray[i]->key,hashArray[i]->data->next->type,hashArray[i]->data->next->val);
-         }*/
+            printf(" (%d,%s,%d)",i,tab[i].next->type,tab[i].next->val);
+         }
       }
       else
          printf(" ~~ ");
    }
 	
-   printf("\n");
+   printf("\n\n");
+}
+
+ node_t* makeTab(){
+   node_t* tab =  malloc(sizeof(node_t) * SIZE);
+   return tab;
 }
