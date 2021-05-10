@@ -9,7 +9,7 @@ void yyerror (char *s) {
 }
 %}
 %token IDENTIFICATEUR CONSTANTE VOID INT FOR WHILE IF ELSE SWITCH CASE DEFAULT
-%token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT BAND BOR LAND LOR LT GT 
+%token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT LT GT
 %token GEQ LEQ EQ NEQ NOT EXTERN
 %left PLUS MOINS
 %left MUL DIV
@@ -23,7 +23,7 @@ void yyerror (char *s) {
 %start programme
 %%
 programme	:	
-		liste_declarations liste_fonctions
+	|	liste_declarations liste_fonctions
 ;
 liste_declarations	:	
 		liste_declarations declaration 
@@ -53,14 +53,12 @@ type	:
 	|	INT
 ;
 
-liste_parms :      // pour accepter epsilon ou une liste d'expressions
-    parms-liste-creator
 
-parms-liste-creator :                         // création de la liste d'expressions valide
-    parms-liste-creator ',' parm  // liste à n éléments
-    | parm                            // liste à un seul élément
-liste_parms	:	
+liste_parms	:
+		parm	
+	|
 		liste_parms ',' parm
+    | 
 
 ;
 parm	:	
@@ -110,19 +108,16 @@ variable	:
 expression	:	
 		'(' expression ')'
 	|	expression binary_op expression %prec OP
-	|	MOINS expression
+	|	MOINS expression 
 	|	CONSTANTE
 	|	variable
 	|	IDENTIFICATEUR '(' liste_expressions ')'
 ;
 
 liste_expressions :      // pour accepter epsilon ou une liste d'expressions
-    expr-liste-creator
-    | 
-
-expr-liste-creator :                         // création de la liste d'expressions valide
-    expr-liste-creator ',' expression  // liste à n éléments
-    | expression                              // liste à un seul élément
+	| expression                              // liste à un seul élément
+    | liste_expressions ',' expression  // liste à n éléments
+    
 
 condition	:	
 		NOT '(' condition ')'
@@ -132,11 +127,11 @@ condition	:
 ;
 binary_op	:	
 		PLUS
-	|       MOINS
+	|   MOINS
 	|	MUL
 	|	DIV
-	|       LSHIFT
-	|       RSHIFT
+	|   LSHIFT
+	|   RSHIFT
 	|	BAND
 	|	BOR
 ;
