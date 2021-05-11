@@ -2,8 +2,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "Structures/Stack.c"
 
-#include "hash_tab.c"
 int yylex();
 void yyerror (char *s) {
 	fprintf (stderr, "%s\n", s);	
@@ -154,6 +154,8 @@ binary_comp	:
 int main (){
 		yyparse();
 		printf("Success.\n");
+		/*
+		struct stack *pt = newStack(10000);
 		node_t* test = makeLinkedList(1,"int");
 		node_t* test2 = makeLinkedList(5,"int");
 		push(test, 2, "string");
@@ -168,7 +170,18 @@ int main (){
 		insert(it,5, test);
 		display(i);
 		display(it);
+		//On peut mettre dans la stack, on peut regarder le premier elem de la stack 
+		stack_push(pt, i);
+		printf("stack Party ------uwu");
+		display(stack_peek(pt));
+		stack_push(pt,it);
+		display(stack_peek(pt));
+		printf("POPPY POPPY");
+		stack_pop(pt);
+		display(stack_peek(pt));
 
-
+		stack_pop(pt);
+		stack_peek(pt);
+		*/
 		return 0;
 }
