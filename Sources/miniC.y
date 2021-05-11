@@ -10,7 +10,20 @@ void yyerror (char *s) {
 	exit(2);
 }
 %}
-%token IDENTIFICATEUR CONSTANTE VOID INT FOR WHILE IF ELSE SWITCH CASE DEFAULT
+
+%union{
+    char* chaine; 
+    int val;
+};
+
+%token<chaine> IDENTIFICATEUR
+%token<chaine> INT
+%token<chaine> VOID
+%type<chaine> type
+
+%token<val> CONSTANTE
+
+%token FOR WHILE IF ELSE SWITCH CASE DEFAULT
 %token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT LT GT
 %token GEQ LEQ EQ NEQ NOT EXTERN
 %left PLUS MOINS
@@ -36,14 +49,20 @@ liste_fonctions	:
 |               fonction
 ;
 declaration	:	
-		type liste_declarateurs ';'
+		type liste_declarateurs ';'     {
+				if (strcmp($1,"void")==0){
+					yyerror("variable void");
+				}
+		}
 ;
 liste_declarateurs	:	
 		liste_declarateurs ',' declarateur
 	|	declarateur
 ;
 declarateur	:	
-		IDENTIFICATEUR
+		IDENTIFICATEUR						{
+
+											}
 	|	declarateur '[' CONSTANTE ']'
 ;
 fonction	:	
@@ -51,8 +70,8 @@ fonction	:
 	|	EXTERN type IDENTIFICATEUR '(' liste_parms ')' ';'
 ;
 type	:	
-		VOID
-	|	INT
+		VOID 	{$$ = strdup("void");}
+	|	INT		{$$ = "int";}
 ;
 
 
@@ -104,7 +123,9 @@ appel	:
 		IDENTIFICATEUR '(' liste_expressions ')' ';'
 ;
 variable	:	
-		IDENTIFICATEUR
+		IDENTIFICATEUR 				{
+
+									}
 	|	variable '[' expression ']'
 ;
 expression	:	

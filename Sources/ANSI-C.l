@@ -28,9 +28,12 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 "default"               { printf("default "); return DEFAULT; }
 "break"                 { printf("break "); return BREAK; }
 "return"                { printf("return "); return RETURN; }
-{L}({L}|{D})*           { printf("identifier "); return IDENTIFICATEUR; }
-{D}+{IS}?               { printf("CONSTANTE "); return CONSTANTE; }
-0[xX]{H}+{IS}?          { printf("const hexa "); return CONSTANTE; }
+{L}({L}|{D})*           {   printf("identifier "); 
+                            yylval.chaine = strdup(yytext);
+                            return IDENTIFICATEUR; }
+{D}+{IS}?               { printf("CONSTANTE "); 
+                            yylval.val = atoi(yytext);
+                            return CONSTANTE; }
 {COM}                   { printf("commentaire");}      
 
 "&&"                    { printf("and operation "); return LAND; }
