@@ -3,17 +3,23 @@
 #include "linked_list.h"
 void print_list(node_t * head) {
     node_t * current = head;
-
+    int x = 0;
     while (current != NULL) {
-        printf("%d, %s\n", current->val, current->type);
+       if(x == 0){
+              printf(" (%d, %s, %s)", current->val, current->type, current->iden);
+        }
+        else{ 
+            printf("--(%d, %s, %s)", current->val, current->type, current->iden);
+        }
         current = current->next;
+        x++;
     }
 }
 
 
-void push(node_t * head, int val, char* type) {
+void push(node_t * head, int val, char* type, char * iden) {
     node_t * current = head;
-    while (current->next != NULL) {
+    while (current->next->val != NULL) {
         current = current->next;
     }
 
@@ -21,6 +27,7 @@ void push(node_t * head, int val, char* type) {
     current->next = (node_t *) malloc(sizeof(node_t));
     current->next->val = val;
 	current->next->type= type;
+    current->next->iden= iden;
     current->next->next = NULL;
 }
 
@@ -66,11 +73,12 @@ int remove_by_index(node_t ** head, int n) {
     return retval;
 }
 
-node_t* makeLinkedList(int val, char* type){
+node_t* makeLinkedList(int val, char* type, char* iden){
     node_t * head = NULL;
     head = (node_t *) malloc(sizeof(node_t));
     head->val = val;
     head->type = type;
+    head->iden = iden;
     head->next = NULL;
     return head;
 }
