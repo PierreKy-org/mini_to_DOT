@@ -154,21 +154,29 @@ binary_comp	:
 int main (){
 		yyparse();
 		printf("Success.\n");
-		/*
+	
 		struct stack *pt = newStack(10000);
-		node_t* test = makeLinkedList(1,"int");
-		node_t* test2 = makeLinkedList(5,"int");
-		push(test, 2, "string");
-		print_list(test);
-
-
+		node_t* test = makeLinkedList(1,"int", "toto");
+		node_t* test2 = makeLinkedList(5,"int", "totdo");
+		node_t* test3 = makeLinkedList(7,"string", "totddo");
+		node_t* test4 = makeLinkedList(7,"int", "prout");
+		node_t* test5 = makeLinkedList(10,"string", "lol");
+		node_t* test6 = makeLinkedList(7,"float", "C");
 		node_t* i = makeTab();
-		insert(i,1, test);
-		insert(i,2, test2);
-
-		node_t* it = makeTab();
-		insert(it,5, test);
+		
+		insert(i,test);
+		insert(i,test2);
+		insert(i,test3);
+		insert(i,test4);
+		insert(i,test5);
+		insert(i,test6);
 		display(i);
+	
+		node_t* t = search(i, "totddo");
+		print_list(t);
+		/*node_t* it = makeTab();
+		insert(it,5, test);
+		
 		display(it);
 		//On peut mettre dans la stack, on peut regarder le premier elem de la stack 
 		stack_push(pt, i);
@@ -181,7 +189,7 @@ int main (){
 		display(stack_peek(pt));
 
 		stack_pop(pt);
-		stack_peek(pt);
-		*/
+		stack_peek(pt);*/
+		
 		return 0;
 }

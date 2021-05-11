@@ -8,47 +8,57 @@
 
 
  
-int hash_function(int key) {
-   return key % SIZE;
+int hash_function( char *nom ) {
+   int i, r;
+   int taille = strlen(nom);
+   r = 0;
+   for ( i = 0; i < taille; i++ )
+      r = ((r << 8) + nom[i]) % SIZE;
+   return r;
 }
 
-node_t search(node_t* tab,int key) {
+
+node_t* search(node_t* tab, char* iden) {
    //get the hash 
-   int hashIndex = hash_function(key);  
-	int i =0; 
+   int hashIndex = hash_function(iden);  
+   node_t* s = &tab[hashIndex];
    //move in array until an empty 
-   while(tab[i].val != NULL) {
+   while(s->val != NULL) {
 	
-      if(i == hashIndex)
-         return tab[i]; 
-			
-      //go to next cell
-      ++i;
+      if(strcmp( s->iden, iden ) == 0)
+         return s; 
+      s = s->next;
 		
-      //wrap around the table
-      i %= SIZE;
    }        
 	node_t t;
    t.val = NULL;
    t.next = NULL;
    t.type = NULL;
-   return t ;        
+   return &t ;        
 }
 
-void insert(node_t* tab,int key,node_t* data) {
+node_t* insert(node_t* tab,node_t* data) {
 
-   //get the hash 
-   int hashIndex = hash_function(key);
-   //move in array until an empty or deleted cell
-   while(tab[hashIndex].val != NULL && hashIndex != 99) {
-      //go to next cell
-      ++hashIndex;
-		
-      //wrap around the table
-      hashIndex %= SIZE;
+   int hashIndex = hash_function(data->iden);
+   node_t* s = &tab[hashIndex];
+   node_t* precedent = malloc(sizeof(node_t));
+   while(s->val != NULL) {
+      if (strcmp( s->iden, data->iden ) == 0)
+         return s;
+		precedent = s;
+      if(s->next == NULL){
+         s->next = (node_t *) malloc(sizeof(node_t));
+      }
+      s = s->next;
    }
-	
-   tab[hashIndex] = *data;
+   if ( precedent->val == NULL ) {
+      tab[hashIndex] = *data;
+      return &tab[hashIndex];
+   }else{
+      push(precedent, data->val, data->type, data->iden);
+      return precedent->next;
+   }
+
 }
 
  
@@ -59,13 +69,7 @@ void display(node_t* tab) {
    for(i = 0; i<SIZE; i++) {
 	
       if(tab[i].val != NULL){
-         printf(" (%d,%s,%d)",i,tab[i].type,tab[i].val);
-         
-         //La valeur du deuxieme element de la liste chainée
-         if(tab[i].next != NULL){
-            printf("lol");
-            printf(" (%d,%s,%d)",i,tab[i].next->type,tab[i].next->val);
-         }
+         print_list(&tab[i]);
       }
       else
          printf(" ~~ ");
@@ -75,6 +79,6 @@ void display(node_t* tab) {
 }
 
  node_t* makeTab(){
-   node_t* tab =  malloc(sizeof(node_t) * SIZE);
+   node_t* tab = (node_t *) malloc(sizeof(node_t) * SIZE);
    return tab;
 }

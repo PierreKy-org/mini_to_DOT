@@ -1,10 +1,10 @@
 #include "linked_list.c"
 
-int hash_function(int key);
+int hash_function(char* nom);
 
-node_t search(node_t* tab,int key);
+node_t* search(node_t* tab, char* iden);
 
-void insert(node_t* tab,int key,node_t* data);
+node_t* insert(node_t* tab,node_t* data);
 
 
 void display(node_t* tab);
