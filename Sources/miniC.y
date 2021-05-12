@@ -221,23 +221,11 @@ int main (){
 		insert(i,test4);
 		insert(i,test5);
 		insert(i,test6);
-		display(i);
 	
 		node_t* t = search(i, "totddo");
-		print_list(t);
 		node_t* it = makeTab();
-		insert(it, test);
-		
-		display(it);
-		//On peut mettre dans la stack, on peut regarder le premier elem de la stack 
-		stack_push(pt, i);
-		printf("stack Party ------uwu");
-		display(stack_peek(pt));
-		stack_push(pt,it);
-		display(stack_peek(pt));
-		printf("POPPY POPPY");
-		stack_pop(pt);
 
+		insert(it, test);
 		
 		return 0;
 }
