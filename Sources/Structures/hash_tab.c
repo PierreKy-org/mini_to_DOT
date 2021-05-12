@@ -23,7 +23,7 @@ node_t* search(node_t* tab, char* iden) {
    int hashIndex = hash_function(iden);  
    node_t* s = &tab[hashIndex];
    //move in array until an empty 
-   while(s->val != NULL) {
+   while(s->type != NULL) {
 	
       if(strcmp( s->iden, iden ) == 0)
          return s; 
