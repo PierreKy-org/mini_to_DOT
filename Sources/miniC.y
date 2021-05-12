@@ -4,7 +4,11 @@
 #include <stdlib.h>
 #include "Structures/Stack.c"
 
+
+struct stack* global_stack;
+
 int yylex();
+char* concat(const char *s1, const char *s2);
 void yyerror (char *s) {
 	fprintf (stderr, "%s\n", s);	
 	exit(2);
@@ -16,12 +20,16 @@ void yyerror (char *s) {
     int val;
 };
 
+//Il nous faut une stack globale
+//Il nous faut une table globale (qui serait le haut de la stack)
+//Un arbre aussi, pour construire tout en un.
+
 %token<chaine> IDENTIFICATEUR
+%token<chaine> CONSTANTE
 %token<chaine> INT
 %token<chaine> VOID
-%type<chaine> type
 
-%token<val> CONSTANTE
+%type<chaine> type declaration liste_declarateurs declarateur liste_declarations 
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
 %token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT LT GT
@@ -38,11 +46,17 @@ void yyerror (char *s) {
 %start programme
 %%
 programme	:	
-	|	liste_declarations liste_fonctions
+	|	liste_declarations liste_fonctions	{
+			printf($1);
+	}
 ;
 liste_declarations	:	
-		liste_declarations declaration 
-	|	
+		liste_declarations declaration 		{
+			$$ = concat(concat($1,", "),$2);
+		}
+	|										{
+			
+	}
 
 liste_fonctions	:	
 		liste_fonctions fonction
@@ -51,19 +65,26 @@ liste_fonctions	:
 declaration	:	
 		type liste_declarateurs ';'     {
 				if (strcmp($1,"void")==0){
-					yyerror("variable void");
+					yyerror("Error : Variable void");
 				}
+				$$ = concat(concat($1,$2),";");
 		}
 ;
 liste_declarateurs	:	
-		liste_declarateurs ',' declarateur
-	|	declarateur
+		liste_declarateurs ',' declarateur 		{
+				$$ = concat(concat($1," , "),$3);
+		}
+	|	declarateur {
+				$$ = $1;
+	}
 ;
 declarateur	:	
 		IDENTIFICATEUR						{
-
-											}
-	|	declarateur '[' CONSTANTE ']'
+				$$ = $1;
+		}
+	|	declarateur '[' CONSTANTE ']'		{
+				$$ = concat(concat(concat($1,"["),$3),"]");
+	}
 ;
 fonction	:	
 		type IDENTIFICATEUR '(' liste_parms ')' '{' liste_declarations liste_instructions '}'
@@ -172,6 +193,15 @@ binary_comp	:
 ;
 %%
 
+char* concat(const char *s1, const char *s2)
+{
+    char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
+    // in real code you would check for errors in malloc here
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
+}
+
 int main (){
 		yyparse();
 		printf("Success.\n");
@@ -195,8 +225,8 @@ int main (){
 	
 		node_t* t = search(i, "totddo");
 		print_list(t);
-		/*node_t* it = makeTab();
-		insert(it,5, test);
+		node_t* it = makeTab();
+		insert(it, test);
 		
 		display(it);
 		//On peut mettre dans la stack, on peut regarder le premier elem de la stack 
@@ -207,10 +237,7 @@ int main (){
 		display(stack_peek(pt));
 		printf("POPPY POPPY");
 		stack_pop(pt);
-		display(stack_peek(pt));
 
-		stack_pop(pt);
-		stack_peek(pt);*/
 		
 		return 0;
 }
