@@ -12,4 +12,6 @@ int stack_isFull(struct stack *pt);
 void stack_push(struct stack *pt, node_t* t);
 node_t* stack_peek(struct stack *pt);
 node_t* stack_pop(struct stack *pt);
+struct stack* stack_copy(struct stack *pt);
+int stack_search(struct stack *pt, char *iden);
 

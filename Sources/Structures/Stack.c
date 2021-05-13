@@ -59,6 +59,7 @@ node_t* stack_peek(struct stack *pt) {
         exit(EXIT_FAILURE);
     }
 }
+
  
 // Utility function to pop a top element from the stack
 node_t* stack_pop(struct stack *pt) {
@@ -70,4 +71,37 @@ node_t* stack_pop(struct stack *pt) {
     }
     // decrement stack size by 1 and (optionally) return the popped element
     return pt->items[pt->top--];
+}
+
+struct stack* stack_copy(struct stack *pt){
+    struct stack *copyPointer = (struct stack*)malloc(sizeof(struct stack));
+    *copyPointer = *pt;
+    return copyPointer;
+}
+
+int stack_search(struct stack *pt, char *iden){
+    struct stack *copy = (struct stack*)malloc(sizeof(struct stack));
+    copy = stack_copy(pt);
+
+    printf("\n taille stack %d",stack_size(pt));
+    printf("\n taille copy %d",stack_size(copy));
+    node_t* t = (node_t*)malloc(sizeof(node_t));
+    int taille_stack = stack_size(copy);
+
+    for(int i=0; i < taille_stack; i++){
+
+        t = search(stack_peek(copy),iden);
+        //On vient de trouver une définition correspondante dans une des tables de la pile
+        //On revoit vrai
+        if (t!=NULL){
+            return 1;
+        }
+        stack_pop(copy);
+    }
+    printf("\n DEUXIEME taille stack %d",stack_size(pt));
+    printf("\n DEUXIEME taille copy %d",stack_size(copy));
+    free(t);
+    free(copy);
+    //On a parcourut toute la stack mais on pas trouvé ident
+    return 0;
 }

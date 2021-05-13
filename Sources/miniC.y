@@ -18,12 +18,8 @@ node_t* i;
     char* chaine; 
 };
 
-%token<chaine> IDENTIFICATEUR
-%token<chaine> INT
-%token<chaine> VOID
+%token<chaine> IDENTIFICATEUR INT VOID CONSTANTE
 %type<chaine> type affectation declaration liste_declarateurs declarateur  variable
-
-%token<chaine> CONSTANTE
 %type<chaine> binary_op liste_expressions expression
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
@@ -60,7 +56,7 @@ declaration	:
 				char * token = strtok($2, ",");
 				// loop through the string to extract all other tokens
 				while( token != NULL ) {
-					printf( " %s\n", token ); //printing each token
+					//printf( " %s\n", token ); //printing each token
 					insert(i, makeLinkedList(NULL,"int",token));
 					token = strtok(NULL, ",");
    }
@@ -129,22 +125,21 @@ saut	:
 				//if(t->next == NULL && t->type == NULL){
 affectation	:	
 		variable '=' expression {	
-				node_t* t = (node_t*)malloc(sizeof(node_t));
-				t = search(i, $1);
+				//node_t* t = (node_t*)malloc(sizeof(node_t));
+				//t = search(i, $1);
+				int avonsNousTrouveIdent;
+				avonsNousTrouveIdent = stack_search(pt,$1);
 				//ajout search stack
-				printf("%s",t->type);
-				if(t==NULL){
+				//printf("%s",t->type);
+				if(avonsNousTrouveIdent == 0){
 					yyerror("Variable non déclarée");
 				}
-				
 				else{
 					$$ = concat(concat($1," = "),$3);
 					makeTreeNode("trapezium","solid","red",NULL);
-					printf("%s",readTree( makeTreeNode("trapezium","solid","red",NULL),"TOTO","variable"));
+					//printf("%s",readTree( makeTreeNode("trapezium","solid","red",NULL),"TOTO","variable"));
 					insert(i,makeLinkedList($3, "int", $1));
 				}
-
-
 		}
 ;
 bloc	:	
@@ -155,12 +150,12 @@ appel	:
 ;
 variable	:	
 		IDENTIFICATEUR 				{ $$ = $1; }
-	|	variable '[' expression ']' {printf("attention tableau, on gère pas");$$=$1;}
+	|	variable '[' expression ']' { $$=$1; }
 ;
 
 expression	:	
 		'(' expression ')' 	{$$ = $2;}	
-	|	expression binary_op expression %prec OP {printf("\nOperation incoming\n");$$ = concat(concat($1,$2),$3);}
+	|	expression binary_op expression %prec OP {$$ = concat(concat($1,$2),$3);}
 	|	MOINS expression {$$ = concat("-",$2);}
 	|	CONSTANTE {$$ = $1;}
 	|	variable {$$ = $1;}
@@ -216,8 +211,9 @@ int main (){
 		i = makeTab();
 		stack_push(pt,i);
 		yyparse();
+
 		printf("Success.\n");
 
-		
+int i;
 		return 0;
 }
