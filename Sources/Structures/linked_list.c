@@ -82,3 +82,14 @@ node_t* makeLinkedList(char* val, char* type, char* iden){
     head->next = NULL;
     return head;
 }
+void pushTreeNode(tree_node_linked_t *head, tree_dot_t *nodeToPush){
+    tree_node_linked_t * current = head;
+    while (current->next != NULL) {
+        current = current->next;
+    }
+
+    /* now we can add a new variable */
+    current->next = (tree_node_linked_t *) malloc(sizeof(tree_node_linked_t));
+    current->current_node = nodeToPush;
+    current->next->next = NULL;
+}

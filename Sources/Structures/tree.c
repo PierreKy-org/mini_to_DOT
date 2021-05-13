@@ -2,12 +2,15 @@
 #include <stdlib.h>
 #include "tree.h"
 
-tree_dot_t* makeTreeNode(char* shape, char* style, char* color, tree_dot_t* pere){
+tree_dot_t* makeTreeNode(char* shape, char* style, char* color, tree_dot_t* pere,char *code, char *nom, char *label){
     tree_dot_t * head = NULL;
     head = (tree_dot_t *) malloc(sizeof(tree_dot_t));
     head->shape = shape;
     head->style = style;
+    head->code = strdup(code);
     head->color = color;
+    head->nom = nom;
+    head->label = label;
     if(pere != NULL){
         head->pere = malloc(sizeof(tree_dot_t));
         head->pere = pere;

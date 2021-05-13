@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "Structures/Stack.c"
-#include "Structures/tree.c"
 
 char* concat(const char *s1, const char *s2);
 int yylex();
@@ -12,14 +11,17 @@ void yyerror (char *s) {
 	exit(2);
 }
 struct stack *pt;
+
+tree_node_linked_t* listeNoeuds;
 node_t* i;
 %}
 %union{
     char* chaine; 
+	struct tree_dot_t* noeud;
 };
 
 %token<chaine> IDENTIFICATEUR INT VOID CONSTANTE
-%type<chaine> type affectation declaration liste_declarateurs declarateur  variable
+%type<noeud> type affectation declaration liste_declarateurs declarateur  variable
 %type<chaine> binary_op liste_expressions expression
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
@@ -52,16 +54,18 @@ declaration	:
 				if (strcmp($1,"void")==0){
 					yyerror("variable void");
 				}
+				/* Dans cette partie on découpe la chaine formée 
+				par la liste des déclarateur pour charger dans la TS chacun des
+				token individuellement
+				*/
 				// Extract the first token
 				char * token = strtok($2, ",");
 				// loop through the string to extract all other tokens
 				while( token != NULL ) {
-					//printf( " %s\n", token ); //printing each token
-					insert(i, makeLinkedList(NULL,"int",token));
+					insert(stack_peek(pt), makeLinkedList(NULL,"int",token));
 					token = strtok(NULL, ",");
-   }
-
-		}
+				}
+			}
 ;
 liste_declarateurs	:	
 		liste_declarateurs ',' declarateur 		{
@@ -120,25 +124,33 @@ selection	:
 saut	:	
 		BREAK ';'
 	|	RETURN ';'
-	|	RETURN expression ';'
+	|	RETURN expression ';'					
 ;
-				//if(t->next == NULL && t->type == NULL){
 affectation	:	
 		variable '=' expression {	
-				//node_t* t = (node_t*)malloc(sizeof(node_t));
-				//t = search(i, $1);
 				int avonsNousTrouveIdent;
 				avonsNousTrouveIdent = stack_search(pt,$1);
-				//ajout search stack
-				//printf("%s",t->type);
 				if(avonsNousTrouveIdent == 0){
 					yyerror("Variable non déclarée");
 				}
 				else{
-					$$ = concat(concat($1," = "),$3);
-					makeTreeNode("trapezium","solid","red",NULL);
-					//printf("%s",readTree( makeTreeNode("trapezium","solid","red",NULL),"TOTO","variable"));
 					insert(i,makeLinkedList($3, "int", $1));
+
+					char *code;
+					code = concat(concat($1," = "),$3);
+					tree_dot_t* treeVal;
+					treeVal = makeTreeNode("trapezium","solid","red",NULL,code, "=","test");
+
+					tree_dot_t* treeVariable;
+					treeVariable = makeTreeNode("trapezium","solid","red",treeVal,code,$1 ,"var");
+					tree_dot_t* treeExp;
+					treeExp = makeTreeNode("trapezium","solid","red",treeVal,code,$3 ,"var");
+
+					pushTreeNode(listeNoeuds, treeVariable);
+					pushTreeNode(listeNoeuds, treeExp);
+
+				$$ = treeVal;
+
 				}
 		}
 ;
@@ -207,6 +219,8 @@ char* concat(const char *s1, const char *s2)
 
 int main (){
 
+
+		listeNoeuds = (tree_node_linked_t*)malloc(sizeof(tree_node_linked_t));
 		pt = newStack(10000);
 		i = makeTab();
 		stack_push(pt,i);
@@ -214,6 +228,5 @@ int main (){
 
 		printf("Success.\n");
 
-int i;
 		return 0;
 }
