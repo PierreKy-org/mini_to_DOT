@@ -17,9 +17,9 @@ void print_list(node_t * head) {
 }
 
 
-void push(node_t * head, int val, char* type, char * iden) {
+void push(node_t * head, char* val, char* type, char * iden) {
     node_t * current = head;
-    while (current->next->val != NULL) {
+    while (current->next->type != NULL) {
         current = current->next;
     }
 
@@ -73,7 +73,7 @@ int remove_by_index(node_t ** head, int n) {
     return retval;
 }
 
-node_t* makeLinkedList(int val, char* type, char* iden){
+node_t* makeLinkedList(char* val, char* type, char* iden){
     node_t * head = NULL;
     head = (node_t *) malloc(sizeof(node_t));
     head->val = val;

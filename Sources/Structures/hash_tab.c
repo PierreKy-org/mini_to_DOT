@@ -42,16 +42,18 @@ node_t* insert(node_t* tab,node_t* data) {
    int hashIndex = hash_function(data->iden);
    node_t* s = &tab[hashIndex];
    node_t* precedent = malloc(sizeof(node_t));
-   while(s->val != NULL) {
-      if (strcmp( s->iden, data->iden ) == 0)
+   while(s->type != NULL) {
+      if (strcmp( s->iden, data->iden ) == 0){
+         s->val = data->val;
          return s;
+      }
 		precedent = s;
       if(s->next == NULL){
          s->next = (node_t *) malloc(sizeof(node_t));
       }
       s = s->next;
    }
-   if ( precedent->val == NULL ) {
+   if ( precedent->type == NULL ) {
       tab[hashIndex] = *data;
       return &tab[hashIndex];
    }else{
