@@ -2,26 +2,38 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <glib.h>
 #include "Structures/Stack.c"
-#include "Structures/tree.c"
+
+#define AFFECTATION 3
+#define VARIABLE 2
+char* concat(const char *s1, const char *s2);
 int yylex();
 void yyerror (char *s) {
 	fprintf (stderr, "%s\n", s);	
 	exit(2);
 }
-%}
-
-%union{
-    char* chaine; 
-    int val;
+typedef struct liste_noeud liste_noeud;
+struct liste_noeud{
+	char* type;
+	char* valeur;
+	GNode* noeud;
 };
 
-%token<chaine> IDENTIFICATEUR
-%token<chaine> INT
-%token<chaine> VOID
-%type<chaine> type
+GHashTable* table_symbole;
+struct stack *pt;
 
-%token<val> CONSTANTE
+tree_node_linked_t* listeNoeuds;
+node_t* i;
+%}
+%union{
+    char* chaine; 
+	GNode* noeud;
+};
+
+%token<chaine> IDENTIFICATEUR INT VOID CONSTANTE
+%type<noeud> type affectation declaration liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
+%type<chaine> binary_op liste_expressions 
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
 %token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT LT GT
@@ -29,7 +41,6 @@ void yyerror (char *s) {
 %left PLUS MOINS
 %left MUL DIV
 %left LSHIFT RSHIFT
-%left BOR BAND
 %left LAND LOR
 %nonassoc THEN
 %nonassoc ELSE
@@ -38,35 +49,36 @@ void yyerror (char *s) {
 %start programme
 %%
 programme	:	
-	|	liste_declarations liste_fonctions
+	|	liste_declarations liste_fonctions 
 ;
 liste_declarations	:	
 		liste_declarations declaration 
 	|	
 
 liste_fonctions	:	
-		liste_fonctions fonction
+		liste_fonctions fonction {$$ = $2;}
 |               fonction
 ;
 declaration	:	
 		type liste_declarateurs ';'     {
-				if (strcmp($1,"void")==0){
-					yyerror("variable void");
+				
+				
 				}
-		}
+		
 ;
 liste_declarateurs	:	
-		liste_declarateurs ',' declarateur
-	|	declarateur
-;
+		liste_declarateurs ',' declarateur 		{
+				$$ = concat(concat($1,","),$3);
+		}
+	|	declarateur {
+				$$ = $1;
+	}
 declarateur	:	
-		IDENTIFICATEUR						{
-
-											}
+		IDENTIFICATEUR						{$$ = $1;}
 	|	declarateur '[' CONSTANTE ']'
 ;
 fonction	:	
-		type IDENTIFICATEUR '(' liste_parms ')' '{' liste_declarations liste_instructions '}'
+		type IDENTIFICATEUR '(' liste_parms ')' '{' liste_declarations liste_instructions '}' {$$ = $8;}
 	|	EXTERN type IDENTIFICATEUR '(' liste_parms ')' ';'
 ;
 type	:	
@@ -86,14 +98,14 @@ parm	:
 		INT IDENTIFICATEUR
 ;
 liste_instructions :	
-		liste_instructions instruction
+		liste_instructions instruction { $$ = $2;}
 	|
 ;
 instruction	:	
 		iteration
 	|	selection
 	|	saut
-	|	affectation ';'
+	|	affectation ';' {$$ = $1;}
 	|	bloc
 	|	appel
 ;
@@ -111,10 +123,28 @@ selection	:
 saut	:	
 		BREAK ';'
 	|	RETURN ';'
-	|	RETURN expression ';'
+	|	RETURN expression ';'					
 ;
 affectation	:	
-		variable '=' expression
+		variable '=' expression {	
+				liste_noeud* l = g_hash_table_lookup(table_symbole,(char*)g_node_nth_child($1, 0)->data);
+				if(l != NULL){
+					$$ = g_node_new((void*)AFFECTATION);
+					g_node_append_data($$,$1);
+					g_node_append($$,$3);
+				}
+				else{
+					l = malloc(sizeof(liste_noeud));
+					l->valeur=$3;
+					l->type = "int";
+					if(g_hash_table_insert(table_symbole, g_node_nth_child($1,0)->data, l)){
+						$$ = g_node_new((void*)AFFECTATION);
+						g_node_append($$,$1);
+						g_node_append($$,$3);
+					}
+				}
+
+		}
 ;
 bloc	:	
 		'{' liste_declarations liste_instructions '}'
@@ -123,23 +153,23 @@ appel	:
 		IDENTIFICATEUR '(' liste_expressions ')' ';'
 ;
 variable	:	
-		IDENTIFICATEUR 				{
-
-									}
-	|	variable '[' expression ']'
+		IDENTIFICATEUR 				{ $$ = g_node_new((void*)VARIABLE);
+										g_node_append_data($$, $1); }
+	|	variable '[' expression ']' { $$=$1; }
 ;
+
 expression	:	
-		'(' expression ')'
-	|	expression binary_op expression %prec OP
-	|	MOINS expression 
-	|	CONSTANTE
-	|	variable
-	|	IDENTIFICATEUR '(' liste_expressions ')'
+		'(' expression ')' 	{$$ = $2;}	
+	|	expression binary_op expression %prec OP {$$ = concat(concat($1,$2),$3);}
+	|	MOINS expression {$$ = concat("-",$2);}
+	|	CONSTANTE {$$ = $1;}
+	|	variable {$$ = $1;}
+	|	IDENTIFICATEUR '(' liste_expressions ')' {$$ = concat(concat($1," "),$3);}
 ;
 
 liste_expressions :      // pour accepter epsilon ou une liste d'expressions
-	| expression                              // liste à un seul élément
-    | liste_expressions ',' expression  // liste à n éléments
+	| expression        {$$ = $1;}
+    | liste_expressions ',' expression  { $$ = concat(concat($1,","),$3); }
     
 
 condition	:	
@@ -149,14 +179,12 @@ condition	:
 	|	expression binary_comp expression
 ;
 binary_op	:	
-		PLUS
-	|   MOINS
-	|	MUL
-	|	DIV
-	|   LSHIFT
-	|   RSHIFT
-	|	BAND
-	|	BOR
+		PLUS 	{$$ = "+";}
+	|   MOINS{$$ = "-";}
+	|	MUL{$$ = "*";}
+	|	DIV{$$ = "/";}
+	|   LSHIFT{$$ = "<<";}
+	|   RSHIFT{$$ = ">>";}
 ;
 binary_rel	:	
 		LAND
@@ -172,55 +200,26 @@ binary_comp	:
 ;
 %%
 
-int main (){
-		yyparse();
-		printf("Success.\n");
-		/*tree_dot_t* p3 =  makeTreeNode("xd", "xd2", "xd3", NULL);
-		tree_dot_t* p2 =  makeTreeNode("non", "non2", "non3", p3);
-		tree_dot_t* p =  makeTreeNode("test", "test2", "test3", p2);
-		char* t = readTree(p->pere, "nonnon", "5");
-		char* tt = readTree(p->pere->pere, "xdxd", "=");
-		char* ttt = readTree(p, "ouioui", "i");
-		printf("%s\n",ttt);
-		printf("%s\n", t );
-		printf("%s\n",tt);
-		printf("%s\n",link_tree(tt,t ));
-		printf("%s\n",link_tree(tt,ttt ));
-		/*struct stack *pt = newStack(10000);
-		node_t* test = makeLinkedList(1,"int", "toto");
-		node_t* test2 = makeLinkedList(5,"int", "totdo");
-		node_t* test3 = makeLinkedList(7,"string", "totddo");
-		node_t* test4 = makeLinkedList(7,"int", "prout");
-		node_t* test5 = makeLinkedList(10,"string", "lol");
-		node_t* test6 = makeLinkedList(7,"float", "C");
-		node_t* i = makeTab();
-		
-		insert(i,test);
-		insert(i,test2);
-		insert(i,test3);
-		insert(i,test4);
-		insert(i,test5);
-		insert(i,test6);
-		display(i);
-	
-		node_t* t = search(i, "totddo");
-		print_list(t);
-		/*node_t* it = makeTab();
-		insert(it,5, test);
-		
-		display(it);
-		//On peut mettre dans la stack, on peut regarder le premier elem de la stack 
-		stack_push(pt, i);
-		printf("stack Party ------uwu");
-		display(stack_peek(pt));
-		stack_push(pt,it);
-		display(stack_peek(pt));
-		printf("POPPY POPPY");
-		stack_pop(pt);
-		display(stack_peek(pt));
 
-		stack_pop(pt);
-		stack_peek(pt);*/
-		
+char* concat(const char *s1, const char *s2)
+{
+    char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
+    // in real code you would check for errors in malloc here
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
+}
+
+int main (){
+
+
+		listeNoeuds = (tree_node_linked_t*)malloc(sizeof(tree_node_linked_t));
+		pt = newStack(10000);
+		i = makeTab();
+		stack_push(pt,i);
+		yyparse();
+
+		printf("Success.\n");
+
 		return 0;
 }
