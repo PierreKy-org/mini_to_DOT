@@ -2,14 +2,27 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <glib.h>
 #include "Structures/Stack.c"
 
+#define AFFECTATION 3
+#define VARIABLE 2
+#define VIDE 0
 char* concat(const char *s1, const char *s2);
 int yylex();
 void yyerror (char *s) {
 	fprintf (stderr, "%s\n", s);	
 	exit(2);
 }
+typedef struct liste_noeud liste_noeud;
+struct liste_noeud{
+	char* type;
+	char* valeur;
+	GNode* noeud;
+};
+
+GHashTable* table_symbole;
+GQueue* Gstack;
 struct stack *pt;
 
 tree_node_linked_t* listeNoeuds;
@@ -17,12 +30,12 @@ node_t* i;
 %}
 %union{
     char* chaine; 
-	struct tree_dot_t* noeud;
+	GNode* noeud;
 };
 
 %token<chaine> IDENTIFICATEUR INT VOID CONSTANTE
-%type<noeud> type affectation declaration liste_declarateurs declarateur  variable
-%type<chaine> binary_op liste_expressions expression
+%type<noeud> type affectation declaration liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
+%type<chaine> binary_op liste_expressions 
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
 %token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT LT GT
@@ -30,7 +43,6 @@ node_t* i;
 %left PLUS MOINS
 %left MUL DIV
 %left LSHIFT RSHIFT
-%left BOR BAND
 %left LAND LOR
 %nonassoc THEN
 %nonassoc ELSE
@@ -39,33 +51,38 @@ node_t* i;
 %start programme
 %%
 programme	:	
-	|	liste_declarations liste_fonctions
+	|	liste_declarations liste_fonctions 
 ;
 liste_declarations	:	
 		liste_declarations declaration 
 	|	
 
 liste_fonctions	:	
-		liste_fonctions fonction
+		liste_fonctions fonction {$$ = $2;}
 |               fonction
 ;
 declaration	:	
 		type liste_declarateurs ';'     {
-				if (strcmp($1,"void")==0){
-					yyerror("variable void");
+						liste_noeud* l = malloc(sizeof(liste_noeud));
+						l->type = $1;
+						l->valeur = NULL;
+						$$ = g_node_new((void*) VIDE);
+						char *ptr = strtok($2, ",");
+						int acc = 0;
+						while(ptr != NULL)
+						{
+							g_node_append_data($$,strdup(ptr));
+							//Insert la valeur et la clé et renvoie TRUE si c'est bon
+							g_hash_table_insert(table_symbole,g_strdup(g_node_nth_child($$,acc)->data),l);
+							acc++;
+							ptr = strtok(NULL, ",");
+						}
+						//printf("%s  ",(char*)g_node_nth_child($$,0)->data); //Affiche la clé (iden)
+						liste_noeud* ll = g_hash_table_lookup(table_symbole,g_node_nth_child($$,0)->data);
+						//printf("%s dqs\n", ll->type ); //Affiche la valeur (normalement l défini plus haut)
+						
 				}
-				/* Dans cette partie on découpe la chaine formée 
-				par la liste des déclarateur pour charger dans la TS chacun des
-				token individuellement
-				*/
-				// Extract the first token
-				char * token = strtok($2, ",");
-				// loop through the string to extract all other tokens
-				while( token != NULL ) {
-					insert(stack_peek(pt), makeLinkedList(NULL,"int",token));
-					token = strtok(NULL, ",");
-				}
-			}
+		
 ;
 liste_declarateurs	:	
 		liste_declarateurs ',' declarateur 		{
@@ -79,7 +96,7 @@ declarateur	:
 	|	declarateur '[' CONSTANTE ']'
 ;
 fonction	:	
-		type IDENTIFICATEUR '(' liste_parms ')' '{' liste_declarations liste_instructions '}'
+		type IDENTIFICATEUR '(' liste_parms ')' '{' liste_declarations liste_instructions '}' {$$ = $8;}
 	|	EXTERN type IDENTIFICATEUR '(' liste_parms ')' ';'
 ;
 type	:	
@@ -99,14 +116,14 @@ parm	:
 		INT IDENTIFICATEUR
 ;
 liste_instructions :	
-		liste_instructions instruction
+		liste_instructions instruction { $$ = $2;}
 	|
 ;
 instruction	:	
 		iteration
 	|	selection
 	|	saut
-	|	affectation ';'
+	|	affectation ';' {$$ = $1;}
 	|	bloc
 	|	appel
 ;
@@ -128,30 +145,21 @@ saut	:
 ;
 affectation	:	
 		variable '=' expression {	
-				int avonsNousTrouveIdent;
-				avonsNousTrouveIdent = stack_search(pt,$1);
-				if(avonsNousTrouveIdent == 0){
-					yyerror("Variable non déclarée");
+				liste_noeud* l = g_hash_table_lookup(table_symbole,(char*)g_node_nth_child($1, 0)->data);
+				//printf("liden : %s", l->type);
+				if(l != NULL){
+					$$ = g_node_new((void*)AFFECTATION);
+					g_node_append_data($$,$1);
+					g_node_append($$,$3);
+					l->valeur = $3;
+					g_hash_table_insert(table_symbole,g_strdup(g_node_nth_child($$,0)->data),l);
+					l = g_hash_table_lookup(table_symbole,(char*)g_node_nth_child($1, 0)->data);
+					//printf("%s", l->valeur);
 				}
 				else{
-					insert(i,makeLinkedList($3, "int", $1));
-
-					char *code;
-					code = concat(concat($1," = "),$3);
-					tree_dot_t* treeVal;
-					treeVal = makeTreeNode("trapezium","solid","red",NULL,code, "=","test");
-
-					tree_dot_t* treeVariable;
-					treeVariable = makeTreeNode("trapezium","solid","red",treeVal,code,$1 ,"var");
-					tree_dot_t* treeExp;
-					treeExp = makeTreeNode("trapezium","solid","red",treeVal,code,$3 ,"var");
-
-					pushTreeNode(listeNoeuds, treeVariable);
-					pushTreeNode(listeNoeuds, treeExp);
-
-				$$ = treeVal;
-
+					yyerror("Variable non déclarée");
 				}
+
 		}
 ;
 bloc	:	
@@ -161,7 +169,8 @@ appel	:
 		IDENTIFICATEUR '(' liste_expressions ')' ';'
 ;
 variable	:	
-		IDENTIFICATEUR 				{ $$ = $1; }
+		IDENTIFICATEUR 				{ $$ = g_node_new((void*)VARIABLE);
+										g_node_append_data($$, $1); }
 	|	variable '[' expression ']' { $$=$1; }
 ;
 
@@ -218,12 +227,9 @@ char* concat(const char *s1, const char *s2)
 }
 
 int main (){
-
-
-		listeNoeuds = (tree_node_linked_t*)malloc(sizeof(tree_node_linked_t));
-		pt = newStack(10000);
-		i = makeTab();
-		stack_push(pt,i);
+		table_symbole = g_hash_table_new(g_str_hash,g_str_equal);
+		Gstack = g_queue_new();
+		g_queue_push_tail(Gstack, table_symbole);
 		yyparse();
 
 		printf("Success.\n");
