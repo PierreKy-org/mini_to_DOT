@@ -8,6 +8,8 @@
 #define AFFECTATION 3
 #define VARIABLE 2
 #define VIDE 0
+#define APPEL 4
+#define INSTRUCTION 5
 char* concat(const char *s1, const char *s2);
 int yylex();
 void yyerror (char *s) {
@@ -34,8 +36,8 @@ node_t* i;
 };
 
 %token<chaine> IDENTIFICATEUR INT VOID CONSTANTE
-%type<noeud> type affectation declaration liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
-%type<chaine> binary_op liste_expressions 
+%type<noeud> appel type affectation declaration  liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
+%type<chaine> binary_op liste_expressions saut
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
 %token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT LT GT
@@ -51,7 +53,13 @@ node_t* i;
 %start programme
 %%
 programme	:	
-	|	liste_declarations liste_fonctions 
+	|	liste_declarations liste_fonctions {
+		
+		if(g_node_nth_child($2,0)->data == INSTRUCTION){
+			printf("chibrux maximus");
+		}
+		//printf("PROUT %s", g_node_nth_child($2,0)->data);
+		}
 ;
 liste_declarations	:	
 		liste_declarations declaration 
@@ -59,7 +67,7 @@ liste_declarations	:
 
 liste_fonctions	:	
 		liste_fonctions fonction {$$ = $2;}
-|               fonction
+|               fonction {$$ = $1;}
 ;
 declaration	:	
 		type liste_declarateurs ';'     {
@@ -97,7 +105,7 @@ declarateur	:
 ;
 fonction	:	
 		type IDENTIFICATEUR '(' liste_parms ')' '{' liste_declarations liste_instructions '}' {$$ = $8;}
-	|	EXTERN type IDENTIFICATEUR '(' liste_parms ')' ';'
+	|	EXTERN type IDENTIFICATEUR '(' liste_parms ')' ';' 
 ;
 type	:	
 		VOID 	{$$ = strdup("void");}
@@ -116,16 +124,19 @@ parm	:
 		INT IDENTIFICATEUR
 ;
 liste_instructions :	
-		liste_instructions instruction { $$ = $2;}
+		liste_instructions instruction { $$ = g_node_new((void*)INSTRUCTION);
+										g_node_append($$, $1);
+										g_node_append($$, $2);
+										}
 	|
 ;
 instruction	:	
 		iteration
 	|	selection
 	|	saut
-	|	affectation ';' {$$ = $1;}
+	|	affectation ';' {$$ = $1; }
 	|	bloc
-	|	appel
+	|	appel {$$ = $1;}
 ;
 iteration	:	
 		FOR '(' affectation ';' condition ';' affectation ')' instruction
@@ -141,7 +152,7 @@ selection	:
 saut	:	
 		BREAK ';'
 	|	RETURN ';'
-	|	RETURN expression ';'					
+	|	RETURN expression ';' {$$ = $2;}			
 ;
 affectation	:	
 		variable '=' expression {	
@@ -150,11 +161,11 @@ affectation	:
 				if(l != NULL){
 					$$ = g_node_new((void*)AFFECTATION);
 					g_node_append_data($$,$1);
-					g_node_append($$,$3);
-					l->valeur = $3;
+					//g_node_append($$,$3);
+					/*l->valeur = $3;
 					g_hash_table_insert(table_symbole,g_strdup(g_node_nth_child($$,0)->data),l);
 					l = g_hash_table_lookup(table_symbole,(char*)g_node_nth_child($1, 0)->data);
-					//printf("%s", l->valeur);
+					//printf("%s", l->valeur);*/
 				}
 				else{
 					yyerror("Variable non déclarée");
@@ -166,7 +177,10 @@ bloc	:
 		'{' liste_declarations liste_instructions '}'
 ;
 appel	:	
-		IDENTIFICATEUR '(' liste_expressions ')' ';'
+		IDENTIFICATEUR '(' liste_expressions ')' ';' { $$ = g_node_new((void*)APPEL);
+														g_node_append_data($$, $1);
+														g_node_append_data($$, $3);
+													}
 ;
 variable	:	
 		IDENTIFICATEUR 				{ $$ = g_node_new((void*)VARIABLE);
@@ -179,7 +193,7 @@ expression	:
 	|	expression binary_op expression %prec OP {$$ = concat(concat($1,$2),$3);}
 	|	MOINS expression {$$ = concat("-",$2);}
 	|	CONSTANTE {$$ = $1;}
-	|	variable {$$ = $1;}
+	|	variable {$$ = g_node_nth_child($1, 0)->data;} //RENVOYER LIDEN DE LA VARIABLE
 	|	IDENTIFICATEUR '(' liste_expressions ')' {$$ = concat(concat($1," "),$3);}
 ;
 
