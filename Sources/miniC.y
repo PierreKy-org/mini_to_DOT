@@ -5,6 +5,7 @@
 #include <glib.h>
 #include "Structures/Stack.c"
 
+#define BLOC 15
 #define CONDITION 14
 #define SELECTION 13
 #define COND_COMPARE 12
@@ -46,7 +47,7 @@ node_t* i;
 };
 
 %token<chaine> IDENTIFICATEUR INT VOID CONSTANTE
-%type<noeud> condition selection appel type affectation declaration saut liste_expressions  liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
+%type<noeud> bloc condition selection appel type affectation declaration saut liste_expressions  liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
 %type<chaine> binary_op binary_rel binary_comp 
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
@@ -144,10 +145,10 @@ liste_instructions :
 ;
 instruction	:	
 		iteration
-	|	selection
+	|	selection {$$ = $1;}
 	|	saut
 	|	affectation ';' {$$ = $1; }
-	|	bloc
+	|	bloc {$$ = $1;}
 	|	appel {$$ = $1;}
 ;
 iteration	:	
@@ -193,7 +194,8 @@ affectation	:
 		}
 ;
 bloc	:	
-		'{' liste_declarations liste_instructions '}'
+		'{' liste_declarations liste_instructions '}' { $$ = g_node_new((void*)BLOC);
+														g_node_append($$, $3);}
 ;
 appel	:	
 		IDENTIFICATEUR '(' liste_expressions ')' ';' { $$ = g_node_new((void*)APPEL);
@@ -284,6 +286,14 @@ char* concat(const char *s1, const char *s2)
 void genCode(GNode* node){
         if(node){
                 switch((long)node->data){
+
+						case BLOC:
+							printf("Bloc\n");
+							fprintf(fichier,"{\n");
+							genCode(g_node_nth_child(node,0));
+							fprintf(fichier,"\n}\n");
+
+							break;
 						case SELECTION: 
 							printf("Selection\n");
 							fprintf(fichier,"if ");
@@ -292,6 +302,7 @@ void genCode(GNode* node){
 						    genCode(g_node_nth_child(node,1));  
 							if(g_node_nth_child(node,2) != NULL){
 								printf("Else\n");
+								fprintf(fichier,"else ");
 								genCode(g_node_nth_child(node,2));  
 							}
 							break;
