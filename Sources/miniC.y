@@ -5,6 +5,7 @@
 #include <glib.h>
 #include "Structures/Stack.c"
 
+#define RETOUR 16
 #define BLOC 15
 #define CONDITION 14
 #define SELECTION 13
@@ -146,7 +147,7 @@ liste_instructions :
 instruction	:	
 		iteration
 	|	selection {$$ = $1;}
-	|	saut
+	|	saut { $$ = $1;}
 	|	affectation ';' {$$ = $1; }
 	|	bloc {$$ = $1;}
 	|	appel {$$ = $1;}
@@ -169,8 +170,9 @@ selection	:
 ;
 saut	:	
 		BREAK ';'
-	|	RETURN ';'
-	|	RETURN expression ';'			
+	|	RETURN ';'	{$$ = g_node_new((void*)RETOUR);}
+	|	RETURN expression ';' {$$ = g_node_new((void*)RETOUR);
+									g_node_append($$,$2);}			
 ;
 affectation	:	
 		variable '=' expression {	
@@ -286,7 +288,17 @@ char* concat(const char *s1, const char *s2)
 void genCode(GNode* node){
         if(node){
                 switch((long)node->data){
+						case RETOUR :
+							printf("Retour\n");
+							fprintf(fichier,"return ");
+							if (g_node_nth_child(node,0)){
+								genCode(g_node_nth_child(node,0));
+							}
+							else{
+								printf("aucune valeur renseigner\n");
+							}
 
+							break;
 						case BLOC:
 							printf("Bloc\n");
 							fprintf(fichier,"{\n");
