@@ -24,6 +24,7 @@ struct liste_noeud{
 GHashTable* table_symbole;
 GQueue* Gstack;
 struct stack *pt;
+FILE* fichier
 
 tree_node_linked_t* listeNoeuds;
 node_t* i;
@@ -35,6 +36,7 @@ node_t* i;
 
 %token<chaine> IDENTIFICATEUR INT VOID CONSTANTE
 %type<noeud> type affectation declaration liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
+%type<noeud> code
 %type<chaine> binary_op liste_expressions 
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
@@ -50,6 +52,11 @@ node_t* i;
 %left REL
 %start programme
 %%
+
+code  : 
+	programme {genCode($1);}
+	;
+
 programme	:	
 	|	liste_declarations liste_fonctions 
 ;
@@ -225,8 +232,33 @@ char* concat(const char *s1, const char *s2)
     strcat(result, s2);
     return result;
 }
-
+void genCode(GNode* ast){
+        if(ast){
+                switch((long)ast->data){
+                        case SEQUENCE:
+                                genCode(g_node_nth_child(ast,0));
+                                genCode(g_node_nth_child(ast,1));
+                                break;
+                        case VARIABLE:
+								printf("aaaaaaaaaaaaaaaaaaaaaaaa");
+                                fprintf(fichier,"On est passé par ici %s\n",(char*)g_node_nth_child(ast,0));
+                                break;
+                        case AFFECTATION:
+								//Mettre le template.
+								//Remplir le template
+								//Ecrire le template.
+                                fprintf(fichier,"\tlong ");
+                                printf("\naaaa %s aaaaaaa\n",g_node_nth_child(ast,0)->data);
+                                genCode(g_node_nth_child(ast,0));
+                                fprintf(fichier,"=");
+                                genCode(g_node_nth_child(ast,1));
+                                fprintf(fichier,";\n");
+                                break;
+							}
+				}
+}
 int main (){
+		fichier = fopen("output.dot","w");
 		table_symbole = g_hash_table_new(g_str_hash,g_str_equal);
 		Gstack = g_queue_new();
 		g_queue_push_tail(Gstack, table_symbole);

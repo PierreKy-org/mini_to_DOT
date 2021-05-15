@@ -1,5 +1,5 @@
 compiler :	lex.yy.c miniC.tab.c
-	@gcc lex.yy.c miniC.tab.c -o compiler -ll 
+	@gcc lex.yy.c miniC.tab.c -ll `pkg-config --cflags --libs glib-2.0` -o compiler
 	@echo "Un compilateur a été créé : compiler"
 	
 miniC.tab.c : 
