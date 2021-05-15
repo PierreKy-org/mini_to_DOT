@@ -5,6 +5,10 @@
 #include <glib.h>
 #include "Structures/Stack.c"
 
+#define DEFAULTS 20
+#define SWITCHS 19
+#define CASES 18
+#define BREAKS 17
 #define RETOUR 16
 #define BLOC 15
 #define CONDITION 14
@@ -164,12 +168,17 @@ selection	:
 														g_node_append($$,$3);
 														g_node_append($$,$5);
 														g_node_append($$,$7);  }
-	|	SWITCH '(' expression ')' instruction
-	|	CASE CONSTANTE ':' instruction
-	|	DEFAULT ':' instruction
+	|	SWITCH '(' expression ')' instruction { $$ = g_node_new((void*)SWITCHS);
+														g_node_append($$,$3);
+														g_node_append($$,$5); }
+	|	CASE CONSTANTE ':' instruction { $$ = g_node_new((void*)CASES);
+											g_node_append_data($$,$2);
+											g_node_append($$,$4); }
+	|	DEFAULT ':' instruction { $$ = g_node_new((void*)DEFAULTS);
+									g_node_append($$,$3); }
 ;
 saut	:	
-		BREAK ';'
+		BREAK ';' {$$ = g_node_new((void*)BREAKS);}
 	|	RETURN ';'	{$$ = g_node_new((void*)RETOUR);}
 	|	RETURN expression ';' {$$ = g_node_new((void*)RETOUR);
 									g_node_append($$,$2);}			
@@ -288,6 +297,27 @@ char* concat(const char *s1, const char *s2)
 void genCode(GNode* node){
         if(node){
                 switch((long)node->data){
+						case BREAKS:
+							printf("Break\n");
+							fprintf(fichier,"break ");
+							break;
+						case DEFAULTS:
+							printf("Default\n");
+							fprintf(fichier,"default ");
+							genCode(g_node_nth_child(node,0));
+							break;
+						case CASES :
+							printf("Case\n");
+							fprintf(fichier,"case ");
+							fprintf(fichier,"%s ",(char*)g_node_nth_child(node,0)->data);
+							genCode(g_node_nth_child(node,1));
+							break;
+						case SWITCHS :
+							printf("Switch\n");
+							fprintf(fichier,"switch ");
+							genCode(g_node_nth_child(node,0));
+							genCode(g_node_nth_child(node,1));
+							break;
 						case RETOUR :
 							printf("Retour\n");
 							fprintf(fichier,"return ");
