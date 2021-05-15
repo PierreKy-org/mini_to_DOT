@@ -148,7 +148,8 @@ liste_instructions :
 										g_node_append($$, $1);
 										g_node_append($$, $2);
 										}
-	|
+	|	instruction {$$ = g_node_new((void*)INSTRUCTION);
+						g_node_append($$, $1);}
 ;
 instruction	:	
 		iteration {$$ = $1;}
