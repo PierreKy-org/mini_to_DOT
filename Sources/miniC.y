@@ -5,6 +5,7 @@
 #include <glib.h>
 #include "Structures/Stack.c"
 
+#define BWHILE 22
 #define BFOR 21
 #define DEFAULTS 20
 #define SWITCHS 19
@@ -163,7 +164,9 @@ iteration	:
 																			g_node_append($$,$5);
 																			g_node_append($$,$7);
 																			g_node_append($$,$9);}
-	|	WHILE '(' condition ')' instruction
+	|	WHILE '(' condition ')' instruction {$$ = g_node_new((void*)BWHILE);
+												g_node_append($$,$3);
+												g_node_append($$,$5);}
 ;
 selection	:	
 		IF '(' condition ')' instruction %prec THEN { $$ = g_node_new((void*)SELECTION);
@@ -302,6 +305,12 @@ char* concat(const char *s1, const char *s2)
 void genCode(GNode* node){
         if(node){
                 switch((long)node->data){
+						case BWHILE:
+							printf("While\n");
+							fprintf(fichier,"while ");
+							genCode(g_node_nth_child(node,0));
+							genCode(g_node_nth_child(node,1));
+							break;
 						case BFOR:
 							printf("For\n");
 							fprintf(fichier,"For ");
