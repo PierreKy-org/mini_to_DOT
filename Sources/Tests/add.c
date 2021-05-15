@@ -5,6 +5,7 @@ int main() {
   i = 45000;
   j = -123;
   printd(i+j);
+  printf(1,2,3,4);
   printd(45000+j);
   printd(i+123);
   printd(45000+123);

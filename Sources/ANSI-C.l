@@ -10,7 +10,7 @@ COM			"/*"([^*]|(\*[^/]))*"*/"
 #include <stdio.h>
 #include <glib.h>
 #include "miniC.tab.h"
-int DEBUG =1;
+int DEBUG =0;
 
 
 %}

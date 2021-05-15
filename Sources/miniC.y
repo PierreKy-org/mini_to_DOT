@@ -5,7 +5,11 @@
 #include <glib.h>
 #include "Structures/Stack.c"
 
+
+#define LISTEXPR 8
+#define CONST 7
 #define AFFECTATION 3
+#define EXPRESSION 6
 #define VARIABLE 2
 #define VIDE 0
 #define APPEL 4
@@ -26,7 +30,7 @@ struct liste_noeud{
 GHashTable* table_symbole;
 GQueue* Gstack;
 struct stack *pt;
-FILE* fichier
+FILE* fichier;
 
 tree_node_linked_t* listeNoeuds;
 node_t* i;
@@ -54,18 +58,15 @@ node_t* i;
 %start programme
 %%
 
-code  : 
-	programme {genCode($1);}
-	;
-
 programme	:	
 	|	liste_declarations liste_fonctions {
 		
 		if(g_node_nth_child($2,0)->data == INSTRUCTION){
-			printf("chibrux maximus");
+			//printf("chibrux maximus");
 		}
 		//printf("PROUT %s", g_node_nth_child($2,0)->data);
-		}
+		genCode($2);
+	}
 ;
 liste_declarations	:	
 		liste_declarations declaration 
@@ -164,14 +165,16 @@ affectation	:
 		variable '=' expression {	
 				liste_noeud* l = g_hash_table_lookup(table_symbole,(char*)g_node_nth_child($1, 0)->data);
 				//printf("liden : %s", l->type);
+
 				if(l != NULL){
 					$$ = g_node_new((void*)AFFECTATION);
-					g_node_append_data($$,$1);
-					//g_node_append($$,$3);
-					/*l->valeur = $3;
-					g_hash_table_insert(table_symbole,g_strdup(g_node_nth_child($$,0)->data),l);
+					g_node_append($$,$1);
+					g_node_append($$,$3);
+					l->valeur = $3;
+					g_hash_table_insert(table_symbole,g_strdup(g_node_nth_child($1,0)->data),l);
 					l = g_hash_table_lookup(table_symbole,(char*)g_node_nth_child($1, 0)->data);
-					//printf("%s", l->valeur);*/
+
+					//printf("%s", l->valeur);
 				}
 				else{
 					yyerror("Variable non déclarée");
@@ -185,7 +188,7 @@ bloc	:
 appel	:	
 		IDENTIFICATEUR '(' liste_expressions ')' ';' { $$ = g_node_new((void*)APPEL);
 														g_node_append_data($$, $1);
-														g_node_append_data($$, $3);
+														g_node_append($$, $3);
 													}
 ;
 variable	:	
@@ -195,17 +198,33 @@ variable	:
 ;
 
 expression	:	
-		'(' expression ')' 	{$$ = $2;}	
-	|	expression binary_op expression %prec OP {$$ = concat(concat($1,$2),$3);}
-	|	MOINS expression {$$ = concat("-",$2);}
-	|	CONSTANTE {$$ = $1;}
-	|	variable {$$ = g_node_nth_child($1, 0)->data;} //RENVOYER LIDEN DE LA VARIABLE
-	|	IDENTIFICATEUR '(' liste_expressions ')' {$$ = concat(concat($1," "),$3);}
+		'(' expression ')' 	{$$ = g_node_new((void*)EXPRESSION);
+		g_node_append_data($$,$2);	}	
+	|	expression binary_op expression %prec OP {$$ = g_node_new((void*)EXPRESSION);
+			g_node_append_data($$, $1);
+			g_node_append_data($$, $2);
+			g_node_append_data($$, $3);
+	}
+	|	MOINS expression 		{$$ = g_node_new((void*)CONST);
+			g_node_append_data($$, concat("-", g_node_nth_child($2,0)->data));}
+	|	CONSTANTE {$$ = g_node_new((void*)CONST);
+			g_node_append_data($$,$1);
+	}
+	|	variable {$$ = $1;}
+	|	IDENTIFICATEUR '(' liste_expressions ')' {$$ = g_node_new((void*)APPEL);
+														g_node_append_data($$, $1);
+														g_node_append_data($$, $3);
+}
 ;
 
-liste_expressions :      // pour accepter epsilon ou une liste d'expressions
-	| expression        {$$ = $1;}
-    | liste_expressions ',' expression  { $$ = concat(concat($1,","),$3); }
+liste_expressions :      
+	| expression        {$$ = g_node_new((void*)LISTEXPR);
+										g_node_append($$, $1);
+							}
+    | liste_expressions ',' expression  {$$ = g_node_new((void*)LISTEXPR);
+										g_node_append($$, $1);
+										g_node_append($$,$3);
+										}
     
 
 condition	:	
@@ -248,26 +267,55 @@ char* concat(const char *s1, const char *s2)
 void genCode(GNode* ast){
         if(ast){
                 switch((long)ast->data){
-                        case SEQUENCE:
+                        case VARIABLE:
+								printf("Variable\n");
+                                fprintf(fichier,"%s",(char*)g_node_nth_child(ast,0)->data);
+                                break;
+						case CONST:
+								printf("CONST\n");
+								fprintf(fichier, "-123");
+                                fprintf(fichier,"%s",(char*)g_node_nth_child(ast,0)->data);
+								break;
+						case LISTEXPR:
+							for(int i = 0; i<g_node_n_children(ast); i++){
+								printf("fils numéro : %d\n",i);
+                                genCode(g_node_nth_child(ast,i));
+							}
+						case EXPRESSION:
+								printf("Expression\n");
                                 genCode(g_node_nth_child(ast,0));
                                 genCode(g_node_nth_child(ast,1));
-                                break;
-                        case VARIABLE:
-								printf("aaaaaaaaaaaaaaaaaaaaaaaa");
-                                fprintf(fichier,"On est passé par ici %s\n",(char*)g_node_nth_child(ast,0));
-                                break;
+
+
+								break;
                         case AFFECTATION:
 								//Mettre le template.
 								//Remplir le template
 								//Ecrire le template.
+								printf("Affectation\n");
                                 fprintf(fichier,"\tlong ");
-                                printf("\naaaa %s aaaaaaa\n",g_node_nth_child(ast,0)->data);
                                 genCode(g_node_nth_child(ast,0));
+                                //printf("\naaaa %s aaaaaaa\n",g_node_nth_child(ast,0)->data);
                                 fprintf(fichier,"=");
                                 genCode(g_node_nth_child(ast,1));
                                 fprintf(fichier,";\n");
                                 break;
-							}
+						case APPEL : 
+							printf("Appel\n");
+							genCode(g_node_nth_child(ast,0));
+							genCode(g_node_nth_child(ast,1));
+
+							break;
+
+						case INSTRUCTION : 
+								printf("Instru\n");
+                                genCode(g_node_nth_child(ast,0));
+								printf("------ Instru separator\n");
+                                genCode(g_node_nth_child(ast,1));
+
+								break;
+						}
+
 				}
 }
 int main (){
