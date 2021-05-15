@@ -5,6 +5,7 @@
 #include <glib.h>
 #include "Structures/Stack.c"
 
+#define BFOR 21
 #define DEFAULTS 20
 #define SWITCHS 19
 #define CASES 18
@@ -52,7 +53,7 @@ node_t* i;
 };
 
 %token<chaine> IDENTIFICATEUR INT VOID CONSTANTE
-%type<noeud> bloc condition selection appel type affectation declaration saut liste_expressions  liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
+%type<noeud> iteration bloc condition selection appel type affectation declaration saut liste_expressions  liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
 %type<chaine> binary_op binary_rel binary_comp 
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
@@ -149,7 +150,7 @@ liste_instructions :
 	|
 ;
 instruction	:	
-		iteration
+		iteration {$$ = $1;}
 	|	selection {$$ = $1;}
 	|	saut { $$ = $1;}
 	|	affectation ';' {$$ = $1; }
@@ -157,7 +158,11 @@ instruction	:
 	|	appel {$$ = $1;}
 ;
 iteration	:	
-		FOR '(' affectation ';' condition ';' affectation ')' instruction
+		FOR '(' affectation ';' condition ';' affectation ')' instruction {$$ = g_node_new((void*)BFOR);
+																			g_node_append($$,$3);
+																			g_node_append($$,$5);
+																			g_node_append($$,$7);
+																			g_node_append($$,$9);}
 	|	WHILE '(' condition ')' instruction
 ;
 selection	:	
@@ -297,6 +302,19 @@ char* concat(const char *s1, const char *s2)
 void genCode(GNode* node){
         if(node){
                 switch((long)node->data){
+						case BFOR:
+							printf("For\n");
+							fprintf(fichier,"For ");
+							genCode(g_node_nth_child(node,0));
+							fprintf(fichier,"; ");
+							genCode(g_node_nth_child(node,1));
+							fprintf(fichier,"; ");
+							genCode(g_node_nth_child(node,2));
+						
+							genCode(g_node_nth_child(node,3));
+							
+
+							break;
 						case BREAKS:
 							printf("Break\n");
 							fprintf(fichier,"break ");
