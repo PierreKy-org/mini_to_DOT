@@ -5,7 +5,8 @@
 #include <glib.h>
 #include "Structures/Stack.c"
 
-
+#define MINUS 10
+#define OPERATION 9
 #define LISTEXPR 8
 #define CONST 7
 #define AFFECTATION 3
@@ -41,8 +42,8 @@ node_t* i;
 };
 
 %token<chaine> IDENTIFICATEUR INT VOID CONSTANTE
-%type<noeud> appel type affectation declaration  liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
-%type<chaine> binary_op liste_expressions saut
+%type<noeud> appel type affectation declaration saut  liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
+%type<chaine> binary_op liste_expressions 
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
 %token BREAK RETURN PLUS MOINS MUL DIV LSHIFT RSHIFT LT GT
@@ -159,7 +160,7 @@ selection	:
 saut	:	
 		BREAK ';'
 	|	RETURN ';'
-	|	RETURN expression ';' {$$ = $2;}			
+	|	RETURN expression ';'			
 ;
 affectation	:	
 		variable '=' expression {	
@@ -199,21 +200,22 @@ variable	:
 
 expression	:	
 		'(' expression ')' 	{$$ = g_node_new((void*)EXPRESSION);
-		g_node_append_data($$,$2);	}	
-	|	expression binary_op expression %prec OP {$$ = g_node_new((void*)EXPRESSION);
-			g_node_append_data($$, $1);
+		g_node_append($$,$2);	}	
+	|	expression binary_op expression %prec OP {$$ = g_node_new((void*)OPERATION);
+			g_node_append($$, $1);
 			g_node_append_data($$, $2);
-			g_node_append_data($$, $3);
+			g_node_append($$, $3);
 	}
-	|	MOINS expression 		{$$ = g_node_new((void*)CONST);
-			g_node_append_data($$, concat("-", g_node_nth_child($2,0)->data));}
+	|	MOINS expression 		{$$ = g_node_new((void*)MINUS);
+								g_node_append_data($$,"-"); 
+								g_node_append($$,$2);}
 	|	CONSTANTE {$$ = g_node_new((void*)CONST);
 			g_node_append_data($$,$1);
 	}
 	|	variable {$$ = $1;}
 	|	IDENTIFICATEUR '(' liste_expressions ')' {$$ = g_node_new((void*)APPEL);
 														g_node_append_data($$, $1);
-														g_node_append_data($$, $3);
+														g_node_append($$, $3);
 }
 ;
 
@@ -264,54 +266,61 @@ char* concat(const char *s1, const char *s2)
     strcat(result, s2);
     return result;
 }
-void genCode(GNode* ast){
-        if(ast){
-                switch((long)ast->data){
+void genCode(GNode* node){
+        if(node){
+                switch((long)node->data){
                         case VARIABLE:
 								printf("Variable\n");
-                                fprintf(fichier,"%s",(char*)g_node_nth_child(ast,0)->data);
+                                fprintf(fichier,"%s ",(char*)g_node_nth_child(node,0)->data);
                                 break;
 						case CONST:
 								printf("CONST\n");
-								fprintf(fichier, "-123");
-                                fprintf(fichier,"%s",(char*)g_node_nth_child(ast,0)->data);
+                                fprintf(fichier,"%s ",(char*)g_node_nth_child(node,0)->data);
 								break;
 						case LISTEXPR:
-							for(int i = 0; i<g_node_n_children(ast); i++){
-								printf("fils numéro : %d\n",i);
-                                genCode(g_node_nth_child(ast,i));
-							}
+							genCode(g_node_nth_child(node,0));
+						    genCode(g_node_nth_child(node,1));
+							break;
 						case EXPRESSION:
 								printf("Expression\n");
-                                genCode(g_node_nth_child(ast,0));
-                                genCode(g_node_nth_child(ast,1));
+                                genCode(g_node_nth_child(node,0));
+                                genCode(g_node_nth_child(node,1));
 
 
 								break;
+						case MINUS:
+							printf("Minus\n");
+							fprintf(fichier,"%s ",(char*)g_node_nth_child(node,0)->data);
+							genCode(g_node_nth_child(node,1));
+							break;
                         case AFFECTATION:
 								//Mettre le template.
 								//Remplir le template
 								//Ecrire le template.
 								printf("Affectation\n");
-                                fprintf(fichier,"\tlong ");
-                                genCode(g_node_nth_child(ast,0));
-                                //printf("\naaaa %s aaaaaaa\n",g_node_nth_child(ast,0)->data);
+                                genCode(g_node_nth_child(node,0));
+                                //printf("\naaaa %s aaaaaaa\n",g_node_nth_child(node,0)->data);
                                 fprintf(fichier,"=");
-                                genCode(g_node_nth_child(ast,1));
+                                genCode(g_node_nth_child(node,1));
                                 fprintf(fichier,";\n");
                                 break;
 						case APPEL : 
 							printf("Appel\n");
-							genCode(g_node_nth_child(ast,0));
-							genCode(g_node_nth_child(ast,1));
-
+							fprintf(fichier,"%s ",(char*)g_node_nth_child(node,0)->data);
+							genCode(g_node_nth_child(node,1));
+							fprintf(fichier,"\n");
 							break;
 
+						case OPERATION :
+							genCode(g_node_nth_child(node,0));
+							fprintf(fichier,"%s ",(char*)g_node_nth_child(node,1)->data);
+							genCode(g_node_nth_child(node,2));
+							break;
 						case INSTRUCTION : 
 								printf("Instru\n");
-                                genCode(g_node_nth_child(ast,0));
+                                genCode(g_node_nth_child(node,0));
 								printf("------ Instru separator\n");
-                                genCode(g_node_nth_child(ast,1));
+                                genCode(g_node_nth_child(node,1));
 
 								break;
 						}
