@@ -3,49 +3,104 @@ digraph G {
 node_0 [label="main, int" shape=invtrapezium color=blue];
 node_1 [label=":=" shape=ellipse];
 node_2 [label="i" shape=ellipse];
-node_3 [label="3" shape=ellipse];
-node_4 [label="Switch" shape=diamond];
-node_5 [label="i" shape=ellipse];{
-
-node_6 [label="case 0" shape=diamond];
+node_3 [label="45000" shape=ellipse];
+node_4 [label=":=" shape=ellipse];
+node_5 [label="j" shape=ellipse];
+node_6 [label="-123" shape=ellipse];
 node_7 [label="printd" shape=septagon];
-node_8 [label="0" shape=ellipse];
-node_9 [label="break" shape=rectangle];
-node_10 [label="case 1" shape=diamond];
+node_8 [label="+" shape=ellipse];
+node_9 [label="i" shape=ellipse];
+node_10 [label="j" shape=ellipse];
 node_11 [label="printd" shape=septagon];
-node_12 [label="1" shape=ellipse];
-node_13 [label="break" shape=rectangle];
-node_14 [label="case 2" shape=diamond];
+node_12 [label="+" shape=ellipse];
+node_13 [label="45000" shape=ellipse];
+node_14 [label="j" shape=ellipse];
 node_15 [label="printd" shape=septagon];
-node_16 [label="2" shape=ellipse];
-node_17 [label="break" shape=rectangle];
-node_18 [label="case 3" shape=diamond];
+node_16 [label="+" shape=ellipse];
+node_17 [label="i" shape=ellipse];
+node_18 [label="123" shape=ellipse];
 node_19 [label="printd" shape=septagon];
-node_20 [label="3" shape=ellipse];
-node_21 [label="case 4" shape=diamond];
-node_22 [label="printd" shape=septagon];
-node_23 [label="4" shape=ellipse];
-node_24 [label="default" shape=diamond];
-node_25 [label="printd" shape=septagon];- 
-node_26 [label="1" shape=ellipse];
-}
-
+node_20 [label="+" shape=ellipse];
+node_21 [label="45000" shape=ellipse];
+node_22 [label="123" shape=ellipse];
+node_23 [label="printd" shape=septagon];
+node_24 [label="+" shape=ellipse];
+node_25 [label="i" shape=ellipse];
+node_26 [label="+" shape=ellipse];
+node_27 [label="j" shape=ellipse];
+node_28 [label="0" shape=ellipse];
+node_29 [label="printd" shape=septagon];
+node_30 [label="+" shape=ellipse];
+node_31 [label="+" shape=ellipse];
+node_32 [label="i" shape=ellipse];
+node_33 [label="0" shape=ellipse];
+node_34 [label="j" shape=ellipse];
+node_35 [label="printd" shape=septagon];
+node_36 [label="+" shape=ellipse];
+node_37 [label="+" shape=ellipse];
+node_38 [label="i" shape=ellipse];
+node_39 [label="0" shape=ellipse];
+node_40 [label="+" shape=ellipse];
+node_41 [label="j" shape=ellipse];
+node_42 [label="0" shape=ellipse];
+node_43 [label="printd" shape=septagon];
+node_44 [label="+" shape=ellipse];
+node_45 [label="+" shape=ellipse];
+node_46 [label="i" shape=ellipse];
+node_47 [label="0" shape=ellipse];
+node_48 [label="123" shape=ellipse];
+node_49 [label="printd" shape=septagon];
+node_50 [label="+" shape=ellipse];
+node_51 [label="45000" shape=ellipse];
+node_52 [label="+" shape=ellipse];
+node_53 [label="j" shape=ellipse];
+node_54 [label="0" shape=ellipse];return 
+node_55 [label="return" shape=trapezium color=blue];
+node_56 [label="0" shape=ellipse];
 
 node_0 -> node_1
 node_1 -> node_2
 node_1 -> node_3
 node_4 -> node_5
 node_4 -> node_6
-node_6 -> node_7
 node_7 -> node_8
-node_10 -> node_11
+node_8 -> node_9
+node_8 -> node_10
 node_11 -> node_12
-node_14 -> node_15
+node_12 -> node_13
+node_12 -> node_14
 node_15 -> node_16
-node_18 -> node_19
+node_16 -> node_17
+node_16 -> node_18
 node_19 -> node_20
-node_21 -> node_22
-node_22 -> node_23
+node_20 -> node_21
+node_20 -> node_22
+node_23 -> node_24
 node_24 -> node_25
-node_25 -> node_26
+node_24 -> node_26
+node_26 -> node_27
+node_26 -> node_28
+node_29 -> node_30
+node_30 -> node_31
+node_31 -> node_32
+node_31 -> node_33
+node_30 -> node_34
+node_35 -> node_36
+node_36 -> node_37
+node_37 -> node_38
+node_37 -> node_39
+node_36 -> node_40
+node_40 -> node_41
+node_40 -> node_42
+node_43 -> node_44
+node_44 -> node_45
+node_45 -> node_46
+node_45 -> node_47
+node_44 -> node_48
+node_49 -> node_50
+node_50 -> node_51
+node_50 -> node_52
+node_52 -> node_53
+node_52 -> node_54
+node_55 -> node_56
 }
