@@ -373,7 +373,10 @@ void genCode(GNode* node){
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
 							//Création & écriture du template
-							fprintf(fichier,"[label=\"break\" shape=rectangle];");
+							fprintf(fichier,"[label=\"break\" shape=box];");
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+							numDotVar++;
 							//Incrémentation du compteur de noms global
 							numDotVar++;
 							break;
