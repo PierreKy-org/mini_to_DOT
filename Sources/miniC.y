@@ -400,11 +400,13 @@ void genCode(GNode* node){
 							fprintf(fichier,"\n%s ",nomVar);
 							//Création & écriture du template
 							fprintf(fichier,"[label=\"Switch\" shape=diamond];",nomLabel);
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
 							//Incrémentation du compteur de noms global
 							numDotVar++;
 							//Créer un lien 
 							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
 							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 							//Incrémentation du compteur de noms global
 							printf("%s",g_node_nth_child(g_node_nth_child(node,0),0)->data);
 							genCode(g_node_nth_child(node,0));
