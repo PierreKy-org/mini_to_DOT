@@ -494,8 +494,8 @@ void genCode(GNode* node){
 							dotbloc = strdup(nomVar);
 							numDotVar++;
 						    genCode(g_node_nth_child(node,0));
-							char* tempo5;
-							tempo5 = strdup(dotbloc);
+							char* tempo6;
+							tempo6 = strdup(dotbloc);
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
 							fprintf(fichier,"[label=\"THEN\" shape=ellipse color=black];");
@@ -504,11 +504,11 @@ void genCode(GNode* node){
 							dotbloc = strdup(nomVar);
 							numDotVar++;
 						    genCode(g_node_nth_child(node,1)); 
-							dotbloc = strdup(tempo5);
-							free(tempo5); 
+							dotbloc = strdup(tempo6);
+							free(tempo6); 
 							if(g_node_nth_child(node,2) != NULL){
 								printf("Else\n");
-								tempo5 = strdup(dotbloc);
+								tempo6 = strdup(dotbloc);
 								nomVar = concat("node_",numToStr(numDotVar));
 								fprintf(fichier,"\n%s ",nomVar);
 								fprintf(fichier,"[label=\"ELSE\" shape=ellipse color=black];");
@@ -517,8 +517,8 @@ void genCode(GNode* node){
 								dotbloc = strdup(nomVar);
 								numDotVar++;
 								genCode(g_node_nth_child(node,2));  
-								dotbloc = strdup(tempo5);
-								free(tempo5); 
+								dotbloc = strdup(tempo6);
+								free(tempo6); 
 							}
 							
 							dotbloc = strdup(tempo4);
