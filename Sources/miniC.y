@@ -31,11 +31,13 @@
 #define FONCTION 1
 #define VIDE 0
 
+GList *functionNamesList;
 char* numToStr(int num);
 char* filename;
 char *liaisonsPereFils;
 int numDotVar;
 int isCurrentConstNeg;
+int isInLinkedList(GList *list, char* toBeFound);
 char* dotbloc;
 char* concat(const char *s1, const char *s2);
 int yylex();
@@ -83,11 +85,6 @@ node_t* i;
 
 programme	:	
 	|	liste_declarations liste_fonctions {
-		
-		if(g_node_nth_child($2,0)->data == INSTRUCTION){
-			//printf("chibrux maximus");
-		}
-		//printf("PROUT %s", g_node_nth_child($2,0)->data);
 		genCode($2);
 	}
 ;
@@ -137,7 +134,10 @@ declarateur	:
 	|	declarateur '[' CONSTANTE ']'
 ;
 fonction	:	
-		type IDENTIFICATEUR '(' liste_parms ')' '{' liste_declarations liste_instructions '}' {$$ = g_node_new((void*)FONCTION);
+		type IDENTIFICATEUR '(' liste_parms ')' '{' liste_declarations liste_instructions '}' {
+								functionNamesList = g_list_append (functionNamesList, $2);
+			
+								$$ = g_node_new((void*)FONCTION);
 								//premier noeud contient type
 										g_node_append_data($$, $1);
 								//second noeud contient nom
@@ -146,7 +146,9 @@ fonction	:
 										g_node_append($$, $8);
 										}
 
-	|	EXTERN type IDENTIFICATEUR '(' liste_parms ')' ';' {$$ = g_node_new((void*)EXTERNF);}
+	|	EXTERN type IDENTIFICATEUR '(' liste_parms ')' ';' {
+			functionNamesList = g_list_append (functionNamesList, $3);
+			$$ = g_node_new((void*)EXTERNF);}
 ;
 type	:	
 		VOID 	{$$ = strdup("void");}
@@ -241,10 +243,16 @@ bloc	:
 														g_node_append($$, $3);}
 ;
 appel	:	
-		IDENTIFICATEUR '(' liste_expressions ')' ';' { $$ = g_node_new((void*)APPEL);
-														g_node_append_data($$, $1);
-														g_node_append($$, $3);
-													}
+		IDENTIFICATEUR '(' liste_expressions ')' ';' { 
+			//Analyse sémantique : Est ce que la fonction en cours d'appel a été déclarée auparavant
+			if (isInLinkedList(functionNamesList, $1)==1) {
+				yyerror("\nFunction called but not defined\n");
+			}else{
+				$$ = g_node_new((void*)APPEL);
+				g_node_append_data($$, $1);
+				g_node_append($$, $3);
+				}
+			}
 ;
 variable	:	
 		IDENTIFICATEUR 				{ $$ = g_node_new((void*)VARIABLE);
@@ -325,6 +333,15 @@ char* concat(const char *s1, const char *s2)
     strcpy(result, s1);
     strcat(result, s2);
     return result;
+}
+int isInLinkedList(GList *list, char* toBeFound){
+	int listSize = g_list_length (list);
+	for(int i=0;i<listSize;i++){
+		if(strcmp(g_list_nth(list, i)->data, toBeFound) == 0){
+			return 0;
+		}
+	}
+	return 1;
 }
 char* numToStr(int num){
 	char *str = (char*)malloc(sizeof(char)*12);
@@ -804,22 +821,26 @@ void genCode(GNode* node){
 				}
 }
 int main(int argc, char *argv[]){ 
+
 		if(argv[1]==NULL){
 			filename = "Resultats/out.dot";
 		}else{
 			filename = concat("Resultats/",concat(argv[1],".dot"));
 		}
 
-		fichier = fopen(filename,"w");
+		//Initialisations
+		functionNamesList = NULL;
 		dotbloc = "";
 		isCurrentConstNeg = 0;
 		numDotVar = 0; //Permet de nommer les variables avec des noms différents (neud<i>)
 		liaisonsPereFils =""; //Sera remplit durant l'éxécution puis écrit à la fin du fichier
-		fprintf(fichier,"digraph G {\n");
-
 		table_hachage = g_hash_table_new(g_str_hash,g_str_equal);
 		Gstack = g_queue_new();
 		g_queue_push_tail(Gstack, table_hachage);
+
+		fichier = fopen(filename,"w");
+		fprintf(fichier,"digraph G {\n");
+
 		yyparse();
 		printf("Success.\n");
 
