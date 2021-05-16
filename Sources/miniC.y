@@ -476,15 +476,45 @@ void genCode(GNode* node){
 							break;
 						case SELECTION: 
 							printf("Selection\n");
-							fprintf(fichier,"if ");
-                            genCode(g_node_nth_child(node,0));
-							fprintf(fichier,"then ");
-						    genCode(g_node_nth_child(node,1));  
+							char* tempo4;
+							tempo4 = strdup(dotbloc);
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+							fprintf(fichier,"[label=\"IF\" shape=diamond color=black];");
+                            liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+							dotbloc = strdup(nomVar);
+							numDotVar++;
+						    genCode(g_node_nth_child(node,0));
+							char* tempo5;
+							tempo5 = strdup(dotbloc);
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+							fprintf(fichier,"[label=\"THEN\" shape=ellipse color=black];");
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+							dotbloc = strdup(nomVar);
+							numDotVar++;
+						    genCode(g_node_nth_child(node,1)); 
+							dotbloc = strdup(tempo5);
+							free(tempo5); 
 							if(g_node_nth_child(node,2) != NULL){
 								printf("Else\n");
-								fprintf(fichier,"else ");
+								tempo5 = strdup(dotbloc);
+								nomVar = concat("node_",numToStr(numDotVar));
+								fprintf(fichier,"\n%s ",nomVar);
+								fprintf(fichier,"[label=\"ELSE\" shape=ellipse color=black];");
+								liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+								liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+								dotbloc = strdup(nomVar);
+								numDotVar++;
 								genCode(g_node_nth_child(node,2));  
+								dotbloc = strdup(tempo5);
+								free(tempo5); 
 							}
+							
+							dotbloc = strdup(tempo4);
+							free(tempo4);
 							break;
 						case COND_LOGIQUE:
 							printf("Cond logique\n");
