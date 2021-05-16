@@ -325,6 +325,7 @@ char* numToStr(int num){
 void genCode(GNode* node){
 	char* nomVar;
 	char* liaisonCourrante;
+	char* nomLabel;
         if(node){
                 switch((long)node->data){
 						case BWHILE:
@@ -343,30 +344,68 @@ void genCode(GNode* node){
 							genCode(g_node_nth_child(node,2));
 						
 							genCode(g_node_nth_child(node,3));
-							
-
 							break;
+
 						case BREAKS:
-							printf("Break\n");
-							fprintf(fichier,"break ");
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+							//Création & écriture du template
+							fprintf(fichier,"[label=\"break\" shape=rectangle];");
+							//Incrémentation du compteur de noms global
+							numDotVar++;
 							break;
 						case DEFAULTS:
 							printf("Default\n");
-							fprintf(fichier,"default ");
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+							//Création & écriture du template
+							fprintf(fichier,"[label=\"default\" shape=diamond];");
+							//Incrémentation du compteur de noms global
+							numDotVar++;
+							//Créer un lien 
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//Incrémentation du compteur de noms global
 							genCode(g_node_nth_child(node,0));
 							break;
-						case CASES :
+						case CASES :							
 							printf("Case\n");
-							fprintf(fichier,"case ");
-							fprintf(fichier,"%s ",(char*)g_node_nth_child(node,0)->data);
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+							//Création du label
+							nomLabel = concat("case ",g_node_nth_child(node,0)->data);
+							//Création & écriture du template
+							fprintf(fichier,"[label=\"%s\" shape=diamond];",nomLabel);
+							//Incrémentation du compteur de noms global
+							numDotVar++;
+							//Créer un lien 
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//Incrémentation du compteur de noms global
 							genCode(g_node_nth_child(node,1));
 							break;
 						case SWITCHS :
 							printf("Switch\n");
-							fprintf(fichier,"switch ");
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+							//Création & écriture du template
+							fprintf(fichier,"[label=\"Switch\" shape=diamond];",nomLabel);
+							//Incrémentation du compteur de noms global
+							numDotVar++;
+							//Créer un lien 
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//Incrémentation du compteur de noms global
 							genCode(g_node_nth_child(node,0));
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 							genCode(g_node_nth_child(node,1));
 							break;
+
 						case RETOUR :
 							printf("Retour\n");
 							fprintf(fichier,"return ");
@@ -568,7 +607,7 @@ void genCode(GNode* node){
 							fprintf(fichier,"\n%s ",nomVar);
 
 							//Création du label (nom de fonction + type)
-							char* nomLabel = concat(concat(g_node_nth_child(node,1)->data,", "),g_node_nth_child(node,0)->data);
+							nomLabel = concat(concat(g_node_nth_child(node,1)->data,", "),g_node_nth_child(node,0)->data);
 							//Création & écriture du template
 							fprintf(fichier,"[label=\"%s\" shape=invtrapezium color=blue];",nomLabel);
 							free(nomLabel);
@@ -581,6 +620,8 @@ void genCode(GNode* node){
 							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 
 							//Génération du code suivant
+
+							printf("Nombre de noeuds : %d",g_node_n_children(g_node_nth_child(node,2)));
 							genCode(g_node_nth_child(node,2));
 							break;
 					}
