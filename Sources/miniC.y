@@ -684,15 +684,19 @@
 								debug("Minus\n");
 								if(g_node_nth_child(node,1)->data == EXPRESSION){
 									//Création du nom
+									char* tempo13;
+									tempo13 = strdup(dotbloc);
 									nomVar = concat("node_",numToStr(numDotVar));
 									fprintf(fichier,"\n%s ",nomVar);
 									fprintf(fichier,"[label=\"-\" shape=ellipse];");
 									liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+									dotbloc = strdup(nomVar);
 									numDotVar++;
-									liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-									liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+									liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 									
 									genCode(g_node_nth_child(node,1));
+									dotbloc = strdup(tempo13);
+									free(tempo13); 
 								}else{
 									isCurrentConstNeg = 1;
 									genCode(g_node_nth_child(node,1));
