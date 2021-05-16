@@ -21,12 +21,13 @@
 #define OPERATION 9
 #define LISTEXPR 8
 #define CONST 7
-#define AFFECTATION 3
 #define EXPRESSION 6
-#define VARIABLE 2
-#define VIDE 0
-#define APPEL 4
 #define INSTRUCTION 5
+#define APPEL 4
+#define AFFECTATION 3
+#define VARIABLE 2
+#define FONCTION 1
+#define VIDE 0
 
 char* numToStr(int num);
 char *liaisonsPereFils;
@@ -91,7 +92,7 @@ liste_declarations	:
 
 liste_fonctions	:	
 		liste_fonctions fonction {$$ = $2;}
-|               fonction {$$ = $1;}
+|               fonction {$$ = g_node_nth_child($1,2);}
 ;
 declaration	:	
 		type liste_declarateurs ';'     {
@@ -128,7 +129,15 @@ declarateur	:
 	|	declarateur '[' CONSTANTE ']'
 ;
 fonction	:	
-		type IDENTIFICATEUR '(' liste_parms ')' '{' liste_declarations liste_instructions '}' {$$ = $8;}
+		type IDENTIFICATEUR '(' liste_parms ')' '{' liste_declarations liste_instructions '}' {$$ = g_node_new((void*)FONCTION);
+								//premier noeud contient type
+										g_node_append_data($$, $1);
+								//second noeud contient nom
+										g_node_append_data($$,$2);
+								//dernier noeud contient data
+										g_node_append($$, $8);
+										}
+
 	|	EXTERN type IDENTIFICATEUR '(' liste_parms ')' ';' 
 ;
 type	:	
@@ -549,7 +558,18 @@ void genCode(GNode* node){
                                 genCode(g_node_nth_child(node,1));
 
 								break;
-						}
+						case FONCTION :
+						//Le premier node contient le type, le second le nom et le dernier la data
+								printf("FONCTION\n");
+							fprintf(fichier,"aaaaaaaaaaaa\"%s\" shape=ellipse];",
+								(char*)g_node_nth_child(node,0)->data);
+								
+							fprintf(fichier,"bbbbbbbbbbbb\"%s\" shape=ellipse];",
+								(char*)g_node_nth_child(node,1)->data);
+								
+                                genCode(g_node_nth_child(node,2));
+								break;
+					}
 
 				}
 }
