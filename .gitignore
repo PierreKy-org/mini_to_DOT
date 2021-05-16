@@ -7,4 +7,4 @@ miniC.tab.*
 compiler
 *.output
 Sources/output.dot
-Sources/Resultats/.*
+Sources/Resultats/*.dot

@@ -8,28 +8,32 @@ Pour le compiler vous devrez vous situer dans ce répertoire :
     mini_to_DOT/Sources 
 
 Nous utilisons également un makefile pour compiler le projet.
-Il dispose de 3 commandes : 
+Il dispose de 4 commandes : 
     -make clean :
         Supprime les éxécutables et codes liés au dernier éxécutable s'il y'en avait un
+
+    -make testCleaning :
+        Supprime tous les .dot contenus dans "Resultats/"
+        
     -make compiler :
         Crée un compiler ainsi que les fichiers nécessaires et yacc.
+
     -make run :
-        Lance le compilateur sur chacun des tests et produit un résultat dans le répertoire "Résultats/"
+        Lance le compilateur sur chacun des tests et produit un fichier .dot dans le répertoire "Resultats/" pour chacun des tests
 
 Pour utiliser le compilateur sans passer par le makefile il faut utiliser la commande suivante :
 
 ./compiler < nom_du_fichier_à_compiler nom_du_fichier_de_sortie
 
-Le compilateur produira le fichier de sortie dans le répertoire "Résultats/" et ajoutera automatiquement l'extension ".dot"
-Si le champ nom_du_fichier_de_sortie est vide on produira alors un fichier "output.dot" qui sera lui aussi stocké dans "Résultats/"
+Le compilateur produira le fichier de sortie dans le répertoire "Resultats/" et ajoutera automatiquement l'extension ".dot"
+Si le champ nom_du_fichier_de_sortie est vide on produira alors un fichier "output.dot" qui sera lui aussi stocké dans "Resultats/"
 
 Exemple : 
 
     ./compiler < Tests/add.c executableAdd
 
-Produira un fichier nommé "executableAdd.dot" dans "Résultats/"
-
-Pour produire un pdf il faut utiliser la commande dot issue de Graphivz
+Produira un fichier nommé "executableAdd.dot" dans "Resultats/"
+Pour produire un pdf il faut utiliser la commande dot issue de Graphivz : 
 
     dot -Tpdf -o fichier_de_sortie.pdf < fichier_lire.dot
 

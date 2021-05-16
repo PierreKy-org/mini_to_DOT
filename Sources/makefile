@@ -8,9 +8,13 @@ miniC.tab.c :
 lex.yy.c :	ANSI-C.l
 	@flex ANSI-C.l
 
+
 clean :
 	@rm lex.yy.c miniC.tab.c miniC.tab.h compiler *.output
 	@echo "Suppression des fichiers effectuée."
+
+testCleaning : 
+	@rm Resultats/*.dot
 
 run  :
 	@echo "===============================\nTest du fichier add.c :\n"
