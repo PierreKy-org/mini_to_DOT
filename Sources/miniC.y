@@ -559,16 +559,30 @@ void genCode(GNode* node){
 
 								break;
 						case FONCTION :
-						//Le premier node contient le type, le second le nom et le dernier la data
-								printf("FONCTION\n");
-							fprintf(fichier,"aaaaaaaaaaaa\"%s\" shape=ellipse];",
-								(char*)g_node_nth_child(node,0)->data);
-								
-							fprintf(fichier,"bbbbbbbbbbbb\"%s\" shape=ellipse];",
-								(char*)g_node_nth_child(node,1)->data);
-								
-                                genCode(g_node_nth_child(node,2));
-								break;
+							//POUR FONCTION le noeud est un peu spécial mais toujours pareil.
+							//Le premier node contient le type, le second le nom et le dernier la data
+							printf("FONCTION\n");
+
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+
+							//Création du label (nom de fonction + type)
+							char* nomLabel = concat(concat(g_node_nth_child(node,1)->data,", "),g_node_nth_child(node,0)->data);
+							//Création & écriture du template
+							fprintf(fichier,"[label=\"%s\" shape=invtrapezium color=blue];",nomLabel);
+							free(nomLabel);
+
+							//Incrémentation du compteur de noms global
+							numDotVar++;
+
+							//Concaténation des liaisons
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+
+							//Génération du code suivant
+							genCode(g_node_nth_child(node,2));
+							break;
 					}
 
 				}
