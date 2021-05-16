@@ -399,10 +399,9 @@ void genCode(GNode* node){
 							//Création du nom
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
-							//Création du label
 							nomLabel = concat("case ",g_node_nth_child(node,0)->data);
-							//Création & écriture du template
 							fprintf(fichier,"[label=\"%s\" shape=diamond];",nomLabel);
+
 							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
 							//Incrémentation du compteur de noms global
 							numDotVar++;
@@ -416,24 +415,26 @@ void genCode(GNode* node){
 
 						case SWITCHS :
 							printf("Switch\n");
-							//Création du nom
+							char* tempo5;
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
-							//Création & écriture du template
 							fprintf(fichier,"[label=\"Switch\" shape=ellipse];",nomLabel);
+
+							//tempo5 = strdup(dotbloc);
 							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
-							//Incrémentation du compteur de noms global
+							dotbloc = strdup(nomVar);
 							numDotVar++;
-							//Créer un lien 
 							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
 							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
-							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
-							//Incrémentation du compteur de noms global
-							printf("%s",g_node_nth_child(g_node_nth_child(node,0),0)->data);
+							//liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+							//Genere le membre à gauche
 							genCode(g_node_nth_child(node,0));
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							//liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//Membre à droite
 							genCode(g_node_nth_child(node,1));
+							dotbloc = strdup(tempo5);
+							free(tempo5);
 							break;
 
 						case RETOUR :
