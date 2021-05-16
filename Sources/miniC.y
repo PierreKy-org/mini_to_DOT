@@ -5,7 +5,6 @@
 #include <glib.h>
 #include "Structures/Stack.c"
 
-#define LISTFONC 23
 #define BWHILE 22
 #define BFOR 21
 #define DEFAULTS 20
@@ -30,10 +29,11 @@
 #define FONCTION 1
 #define VIDE 0
 
-int isCurrentConstNeg;
 char* numToStr(int num);
 char *liaisonsPereFils;
 int numDotVar;
+int isCurrentConstNeg;
+char* dotbloc;
 char* concat(const char *s1, const char *s2);
 int yylex();
 void yyerror (char *s) {
@@ -94,7 +94,7 @@ liste_declarations	:
 
 liste_fonctions	:	
 		liste_fonctions fonction {$$ = $2;}
-|               fonction {$$ = $1}
+|               fonction {$$ = $1;}
 ;
 declaration	:	
 		type liste_declarateurs ';'     {
@@ -132,13 +132,13 @@ declarateur	:
 ;
 fonction	:	
 		type IDENTIFICATEUR '(' liste_parms ')' '{' liste_declarations liste_instructions '}' {$$ = g_node_new((void*)FONCTION);
-									//premier noeud contient type
-								g_node_append_data($$, $1);
-									//second noeud contient nom
-								g_node_append_data($$,$2);
-									//dernier noeud contient data
-								g_node_append($$, $8);
-								}
+								//premier noeud contient type
+										g_node_append_data($$, $1);
+								//second noeud contient nom
+										g_node_append_data($$,$2);
+								//dernier noeud contient data
+										g_node_append($$, $8);
+										}
 
 	|	EXTERN type IDENTIFICATEUR '(' liste_parms ')' ';' 
 ;
@@ -327,6 +327,7 @@ char* numToStr(int num){
 void genCode(GNode* node){
 	char* nomVar;
 	char* liaisonCourrante;
+	char* liasionDessus;
 	char* nomLabel;
         if(node){
                 switch((long)node->data){
@@ -414,32 +415,38 @@ void genCode(GNode* node){
 
 						case RETOUR :
 							printf("Retour\n");
-							fprintf(fichier,"return ");
-							if (g_node_nth_child(node,0)){
 							//Création du nom
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
 
 							//Création & écriture du template
 							fprintf(fichier,"[label=\"return\" shape=trapezium color=blue];");
+							if (g_node_nth_child(node,0)){
 
 							//Calcul de la relation père fils
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
 							numDotVar++;
 							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
 							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 							//Incrémentation du compteur de noms global
 							genCode(g_node_nth_child(node,0));
 							}
 							else{
 								printf("aucune valeur renseignée\n");
+								liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+								numDotVar++;
+								liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+							
 							}
 
 							break;
 						case BLOC:
 							printf("Bloc\n");
+							
 							genCode(g_node_nth_child(node,0));
+							
 							break;
-
 						case SELECTION: 
 							printf("Selection\n");
 							fprintf(fichier,"if ");
@@ -496,10 +503,14 @@ void genCode(GNode* node){
 							fprintf(fichier,"[label=\"%s\" shape=ellipse];",
 								concat("-",g_node_nth_child(node,0)->data));
 							}else{
+							//Création & écriture du template
 							fprintf(fichier,"[label=\"%s\" shape=ellipse];",
 								(char*)g_node_nth_child(node,0)->data);
+
+							//idem que pour Variable
 							}
 							isCurrentConstNeg = 0;
+							//Incrémentation du compteur de noms global
 							numDotVar++;
 							break;
 						case LISTEXPR:
@@ -509,6 +520,9 @@ void genCode(GNode* node){
 						case EXPRESSION:
 								printf("Expression\n");
                                 genCode(g_node_nth_child(node,0));
+                                
+
+
 								break;
 						case MINUS:
 							printf("Minus\n");
@@ -525,12 +539,15 @@ void genCode(GNode* node){
 							//Création & écriture du template
 							fprintf(fichier,"[label=\":=\" shape=ellipse];");
 
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							
 							//Incrémentation du compteur de noms global
 							numDotVar++;
 
 							//Concaténation des liaisons
 							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
 							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 							//printf("liaison pere fils = %s\n",liaisonsPereFils);
 
 							//Génération du code suivant
@@ -553,10 +570,12 @@ void genCode(GNode* node){
 							fprintf(fichier,"[label=\"%s\" shape=septagon];",
 								(char*)g_node_nth_child(node,0)->data);
 
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
 							//Concaténation des liaisons
 							numDotVar++;
 							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
 							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 							//printf("liaison pere fils = %s\n",liaisonsPereFils);
 
 							//Incrémentation du compteur de noms global
@@ -608,7 +627,9 @@ void genCode(GNode* node){
 							//Création du nom
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
-
+							
+							dotbloc = strdup(nomVar);
+							
 							//Création du label (nom de fonction + type)
 							nomLabel = concat(concat(g_node_nth_child(node,1)->data,", "),g_node_nth_child(node,0)->data);
 							//Création & écriture du template
@@ -619,13 +640,10 @@ void genCode(GNode* node){
 							numDotVar++;
 
 							//Concaténation des liaisons
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							//liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 
 							//Génération du code suivant
-
-							// Compter profondeur ? 
-							// Pointeur global, et un boolean 
 
 							printf("Nombre de noeuds : %d",g_node_n_children(g_node_nth_child(node,2)));
 							genCode(g_node_nth_child(node,2));
@@ -635,6 +653,7 @@ void genCode(GNode* node){
 				}
 }
 int main (){
+		dotbloc = "";
 		isCurrentConstNeg = 0;
 		numDotVar = 0; //Permet de nommer les variables avec des noms différents (neud<i>)
 		liaisonsPereFils =""; //Sera remplit durant l'éxécution puis écrit à la fin du fichier
