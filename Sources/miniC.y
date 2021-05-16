@@ -32,6 +32,7 @@
 #define VIDE 0
 
 char* numToStr(int num);
+char* filename;
 char *liaisonsPereFils;
 int numDotVar;
 int isCurrentConstNeg;
@@ -63,7 +64,7 @@ node_t* i;
 };
 
 %token<chaine> IDENTIFICATEUR INT VOID CONSTANTE
-%type<noeud> iteration bloc condition selection appel type affectation declaration saut liste_expressions  liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme  aux_instruction aux_selection aux_bloc
+%type<noeud> iteration bloc condition selection appel type affectation declaration saut liste_expressions  liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme
 %type<chaine> binary_op binary_rel binary_comp 
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
@@ -190,30 +191,6 @@ iteration	:
 												g_node_append($$,$5);}
 ;
 
-aux_instruction : 
-		iteration {$$ = $1;}
-	|	aux_selection {$$ = $1;}
-	|	saut { $$ = $1;}
-	|	affectation ';' {$$ = $1; }
-	|	aux_bloc {$$ = $1;}
-	|	appel {$$ = $1;}
-;
-aux_selection : 
-		IF '(' condition ')' instruction %prec THEN { $$ = g_node_new((void*)SELECTION);
-														g_node_append($$,$3);
-														g_node_append($$,$5); }
-	|	IF '(' condition ')' instruction ELSE instruction { $$ = g_node_new((void*)SELECTION);
-														g_node_append($$,$3);
-														g_node_append($$,$5);
-														g_node_append($$,$7);  }
-	|	SWITCH '(' expression ')' instruction { $$ = g_node_new((void*)SWITCHS);
-														g_node_append($$,$3);
-														g_node_append($$,$5); }
-;
-aux_bloc : 
-	'{' liste_declarations aux_instruction '}' { $$ = g_node_new((void*)BLOC);
-													g_node_append($$, $3);}
-;
 
 selection	:	
 		IF '(' condition ')' instruction %prec THEN { $$ = g_node_new((void*)SELECTION);
@@ -226,7 +203,7 @@ selection	:
 	|	SWITCH '(' expression ')' instruction { $$ = g_node_new((void*)SWITCHS);
 														g_node_append($$,$3);
 														g_node_append($$,$5); }
-	|	CASE CONSTANTE ':' aux_instruction { $$ = g_node_new((void*)CASES);
+	|	CASE CONSTANTE ':' instruction { $$ = g_node_new((void*)CASES);
 											g_node_append_data($$,$2);
 											g_node_append($$,$4); }
 	|	DEFAULT ':' instruction { $$ = g_node_new((void*)DEFAULTS);
@@ -826,12 +803,18 @@ void genCode(GNode* node){
 
 				}
 }
-int main (){
+int main(int argc, char *argv[]){ 
+		if(argv[1]==NULL){
+			filename = "Resultats/out.dot";
+		}else{
+			filename = concat("Resultats/",concat(argv[1],".dot"));
+		}
+
+		fichier = fopen(filename,"w");
 		dotbloc = "";
 		isCurrentConstNeg = 0;
 		numDotVar = 0; //Permet de nommer les variables avec des noms différents (neud<i>)
 		liaisonsPereFils =""; //Sera remplit durant l'éxécution puis écrit à la fin du fichier
-		fichier = fopen("output.dot","w");
 		fprintf(fichier,"digraph G {\n");
 
 		table_hachage = g_hash_table_new(g_str_hash,g_str_equal);
