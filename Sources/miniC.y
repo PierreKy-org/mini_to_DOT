@@ -252,7 +252,7 @@ expression	:
 			g_node_append_data($$, $2);
 			g_node_append($$, $3);
 	}
-	|	MOINS expression 		{$$ = g_node_new((void*)MINUS);
+	|	MOINS expression %prec MOINS  {$$ = g_node_new((void*)MINUS);
 								g_node_append_data($$,"-"); 
 								g_node_append($$,$2);}
 	|	CONSTANTE {$$ = g_node_new((void*)CONST);
@@ -529,9 +529,23 @@ void genCode(GNode* node){
 
 								break;
 						case MINUS:
+						//Vérifie si son fils est une expression --> "-(x + y)" et crée un noeud "-" si besoin
+						//Sinon, on change juste la valeur de isCurrentConstNeg pour par la suite rajouter le "-" devant une var ou une const
 							printf("Minus\n");
-							isCurrentConstNeg = 1;
-							genCode(g_node_nth_child(node,1));
+							if(g_node_nth_child(node,1)->data == EXPRESSION){
+								//Création du nom
+								nomVar = concat("node_",numToStr(numDotVar));
+								fprintf(fichier,"\n%s ",nomVar);
+								fprintf(fichier,"[label=\"-\" shape=ellipse];");
+								numDotVar++;
+								liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+								liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+								genCode(g_node_nth_child(node,1));
+							}else{
+								isCurrentConstNeg = 1;
+								genCode(g_node_nth_child(node,1));
+							}
+
 							break;
                         case AFFECTATION:
 							printf("Affectation\n");
