@@ -14,13 +14,15 @@ node_10 [label="i" shape=ellipse];
 node_11 [label="+" shape=ellipse];
 node_12 [label="i" shape=ellipse];
 node_13 [label="1" shape=ellipse];
-node_14 [label="BLOC" shape=ellipse color=black];if 
-node_15 [label="==" shape=ellipse];
-node_16 [label="i" shape=ellipse];
-node_17 [label="5" shape=ellipse];then 
-node_18 [label="break" shape=rectangle];
-node_19 [label="printd" shape=septagon];
-node_20 [label="i" shape=ellipse];
+node_14 [label="BLOC" shape=ellipse color=black];
+node_15 [label="IF" shape=diamond color=black];
+node_16 [label="==" shape=ellipse];
+node_17 [label="i" shape=ellipse];
+node_18 [label="5" shape=ellipse];
+node_19 [label="THEN" shape=ellipse color=black];
+node_20 [label="break" shape=box];
+node_22 [label="printd" shape=septagon];
+node_23 [label="i" shape=ellipse];
 
 node_0 -> node_1
 node_1 -> node_2
@@ -36,9 +38,12 @@ node_9 -> node_11
 node_11 -> node_12
 node_11 -> node_13
 node_2 -> node_14
-node_15 -> node_16
 node_14 -> node_15
-node_15 -> node_17
+node_16 -> node_17
+node_15 -> node_16
+node_16 -> node_18
+node_15 -> node_19
 node_19 -> node_20
-node_1 -> node_19
+node_22 -> node_23
+node_1 -> node_22
 }

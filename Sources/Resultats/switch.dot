@@ -11,24 +11,24 @@ node_7 [label="BLOC" shape=ellipse color=black];
 node_8 [label="case 0" shape=diamond];
 node_9 [label="printd" shape=septagon];
 node_10 [label="0" shape=ellipse];
-node_11 [label="break" shape=rectangle];
-node_12 [label="case 1" shape=diamond];
-node_13 [label="printd" shape=septagon];
-node_14 [label="1" shape=ellipse];
-node_15 [label="break" shape=rectangle];
-node_16 [label="case 2" shape=diamond];
-node_17 [label="printd" shape=septagon];
-node_18 [label="2" shape=ellipse];
-node_19 [label="break" shape=rectangle];
-node_20 [label="case 3" shape=diamond];
-node_21 [label="printd" shape=septagon];
-node_22 [label="3" shape=ellipse];
-node_23 [label="case 4" shape=diamond];
+node_11 [label="break" shape=box];
+node_13 [label="case 1" shape=diamond];
+node_14 [label="printd" shape=septagon];
+node_15 [label="1" shape=ellipse];
+node_16 [label="break" shape=box];
+node_18 [label="case 2" shape=diamond];
+node_19 [label="printd" shape=septagon];
+node_20 [label="2" shape=ellipse];
+node_21 [label="break" shape=box];
+node_23 [label="case 3" shape=diamond];
 node_24 [label="printd" shape=septagon];
-node_25 [label="4" shape=ellipse];
-node_26 [label="default" shape=diamond];
+node_25 [label="3" shape=ellipse];
+node_26 [label="case 4" shape=diamond];
 node_27 [label="printd" shape=septagon];
-node_28 [label="-1" shape=ellipse];
+node_28 [label="4" shape=ellipse];
+node_29 [label="default" shape=diamond];
+node_30 [label="printd" shape=septagon];
+node_31 [label="-1" shape=ellipse];
 
 node_0 -> node_1
 node_2 -> node_3
@@ -40,17 +40,16 @@ node_8 -> node_9
 node_7 -> node_8
 node_9 -> node_10
 node_7 -> node_9
-node_12 -> node_13
-node_7 -> node_12
+node_7 -> node_11
 node_13 -> node_14
 node_7 -> node_13
-node_16 -> node_17
+node_14 -> node_15
+node_7 -> node_14
 node_7 -> node_16
-node_17 -> node_18
-node_7 -> node_17
-node_20 -> node_21
-node_7 -> node_20
-node_21 -> node_22
+node_18 -> node_19
+node_7 -> node_18
+node_19 -> node_20
+node_7 -> node_19
 node_7 -> node_21
 node_23 -> node_24
 node_7 -> node_23
@@ -60,4 +59,8 @@ node_26 -> node_27
 node_7 -> node_26
 node_27 -> node_28
 node_7 -> node_27
+node_29 -> node_30
+node_7 -> node_29
+node_30 -> node_31
+node_7 -> node_30
 }

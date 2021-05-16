@@ -14,49 +14,49 @@ clean :
 
 run  :
 	@echo "===============================\nTest du fichier add.c :\n"
-	@./compiler < Tests/add.c Resultats/add
+	@./compiler < Tests/add.c add
 
 	@echo "===============================\nTest du fichier break.c :\n"
-	@./compiler < Tests/break.c Resultats/break
+	@./compiler < Tests/break.c break
 
 	@echo "===============================\nTest du fichier compteur.c :\n"
-	@./compiler < Tests/compteur.c Resultats/compteur
+	@./compiler < Tests/compteur.c compteur
 
 	@echo "===============================\nTest du fichier cond.c :\n"
-	@./compiler < Tests/cond.c Resultats/cond
+	@./compiler < Tests/cond.c cond
 
 	@echo "===============================\nTest du fichier div.c :\n"
-	@./compiler < Tests/div.c Resultats/div
+	@./compiler < Tests/div.c div
 
 	@echo "===============================\nTest du fichier expr.c :\n"
-	@./compiler < Tests/expr.c Resultats/expr
+	@./compiler < Tests/expr.c expr
 
 	@echo "===============================\nTest du fichier functions.c :\n"
-	@./compiler < Tests/functions.c Resultats/function
+	@./compiler < Tests/functions.c function
 	
 	@echo "===============================\nTest du fichier loops.c :\n"
-	@./compiler < Tests/loops.c  Resultats/loops
+	@./compiler < Tests/loops.c  loops
 	
 	@echo "===============================\nTest du fichier mul.c :\n"
-	@./compiler < Tests/mul.c Resultats/mul
+	@./compiler < Tests/mul.c mul
 	
 	@echo "===============================\nTest du fichier neg.c :\n"
-	@./compiler < Tests/neg.c Resultats/neg
+	@./compiler < Tests/neg.c neg
 	
 	@echo "===============================\nTest du fichier rsh.c :\n"
-	@./compiler < Tests/rsh.c Resultats/rsh
+	@./compiler < Tests/rsh.c rsh
 
 	@echo "===============================\nTest du fichier sub.c :\n"
-	@./compiler < Tests/sub.c Resultats/sub
+	@./compiler < Tests/sub.c sub
 
 	@echo "===============================\nTest du fichier switch.c :\n"
-	@./compiler < Tests/switch.c Resultats/switch
+	@./compiler < Tests/switch.c switch
 
 	@echo "===============================\nTest du fichier tableaux.c :\n"
-	@./compiler < Tests/tableaux.c Resultats/tableaux
+	@./compiler < Tests/tableaux.c tableaux
 
 	@echo "===============================\nTest du fichier tableaux-multi.c :\n"
-	@./compiler < Tests/tableaux-multi.c Resultats/tableaux-multi
+	@./compiler < Tests/tableaux-multi.c tableaux-multi
 
 	@echo "===============================\nTest du fichier variables.c :\n"
-	@./compiler < Tests/variables.c Resultats/variables
+	@./compiler < Tests/variables.c variables
