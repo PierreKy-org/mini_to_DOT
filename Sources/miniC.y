@@ -27,6 +27,10 @@
 #define VIDE 0
 #define APPEL 4
 #define INSTRUCTION 5
+
+char* numToStr(int num);
+char *liaisonsPereFils;
+int numDotVar;
 char* concat(const char *s1, const char *s2);
 int yylex();
 void yyerror (char *s) {
@@ -303,7 +307,15 @@ char* concat(const char *s1, const char *s2)
     strcat(result, s2);
     return result;
 }
+char* numToStr(int num){
+	char *str = (char*)malloc(sizeof(char)*12);
+	sprintf(str, "%d", num);
+	return str;
+}
+
 void genCode(GNode* node){
+	char* nomVar;
+	char* liaisonCourrante;
         if(node){
                 switch((long)node->data){
 						case BWHILE:
@@ -394,13 +406,36 @@ void genCode(GNode* node){
 							genCode(g_node_nth_child(node,2));
 							break;
                         case VARIABLE:
-								printf("Variable\n");
-                                fprintf(fichier,"%s ",(char*)g_node_nth_child(node,0)->data);
-                                break;
+							printf("Variable\n");
+
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+
+							//Création & écriture du template
+							fprintf(fichier,"[label=\"%s\" shape=ellipse];",
+								(char*)g_node_nth_child(node,0)->data);
+
+							//Une variable est un terminal -> On ne génère aucun code supplémentaire
+
+							//Incrémentation du compteur de noms global
+							numDotVar++;
+							break;
 						case CONST:
-								printf("CONST\n");
-                                fprintf(fichier,"%s ",(char*)g_node_nth_child(node,0)->data);
-								break;
+							printf("CONST\n");
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+
+							//Création & écriture du template
+							fprintf(fichier,"[label=\"%s\" shape=ellipse];",
+								(char*)g_node_nth_child(node,0)->data);
+
+							//idem que pour Variable
+
+							//Incrémentation du compteur de noms global
+							numDotVar++;
+							break;
 						case LISTEXPR:
 							genCode(g_node_nth_child(node,0));
 						    genCode(g_node_nth_child(node,1));
@@ -418,21 +453,53 @@ void genCode(GNode* node){
 							genCode(g_node_nth_child(node,1));
 							break;
                         case AFFECTATION:
-								//Mettre le template.
-								//Remplir le template
-								//Ecrire le template.
-								printf("Affectation\n");
-                                genCode(g_node_nth_child(node,0));
-                                //printf("\naaaa %s aaaaaaa\n",g_node_nth_child(node,0)->data);
-                                fprintf(fichier,"=");
-                                genCode(g_node_nth_child(node,1));
-                                fprintf(fichier,";\n");
-                                break;
-						case APPEL : 
-							printf("Appel\n");
-							fprintf(fichier,"%s ",(char*)g_node_nth_child(node,0)->data);
+							printf("Affectation\n");
+
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+
+							//Création & écriture du template
+							fprintf(fichier,"[label=\":=\" shape=ellipse];");
+
+							//Incrémentation du compteur de noms global
+							numDotVar++;
+
+							//Concaténation des liaisons
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//printf("liaison pere fils = %s\n",liaisonsPereFils);
+
+							//Génération du code suivant
+							genCode(g_node_nth_child(node,0));
+							//Deuxième conaténation de liaison
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//Un appel à genCode augmente le compteur pas besoin de le ré-incrémenter ici
 							genCode(g_node_nth_child(node,1));
-							fprintf(fichier,"\n");
+							break;
+
+						case APPEL : ; //NE PAS SUPPRIMER CE ";"
+							printf("Appel\n");
+
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+
+							//Création & écriture du template
+							fprintf(fichier,"[label=\"%s\" shape=septagon];",
+								(char*)g_node_nth_child(node,0)->data);
+
+							//Concaténation des liaisons
+							liaisonCourrante = concat(concat(concat(concat("\nnode_",numToStr(numDotVar))," -> "),"node_"),numToStr(numDotVar+1));
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//printf("liaison pere fils = %s\n",liaisonsPereFils);
+
+							//Incrémentation du compteur de noms global
+							numDotVar++;
+							//Génération du code suivant
+							genCode(g_node_nth_child(node,1));
+
 							break;
 
 						case OPERATION :
@@ -452,11 +519,15 @@ void genCode(GNode* node){
 				}
 }
 int main (){
+		numDotVar = 0; //Permet de nommer les variables avec des noms différents (neud<i>)
+		liaisonsPereFils =""; //Sera remplit durant l'éxécution puis écrit à la fin du fichier
 		fichier = fopen("output.dot","w");
 		table_hachage = g_hash_table_new(g_str_hash,g_str_equal);
 		Gstack = g_queue_new();
 		g_queue_push_tail(Gstack, table_hachage);
 		yyparse();
+
+		fprintf(fichier,"\n\n%s",liaisonsPereFils);
 
 		printf("Success.\n");
 
