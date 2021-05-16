@@ -491,22 +491,45 @@ void genCode(GNode* node){
 								(char*)g_node_nth_child(node,0)->data);
 
 							//Concaténation des liaisons
-							liaisonCourrante = concat(concat(concat(concat("\nnode_",numToStr(numDotVar))," -> "),"node_"),numToStr(numDotVar+1));
+							numDotVar++;
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
 							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 							//printf("liaison pere fils = %s\n",liaisonsPereFils);
 
 							//Incrémentation du compteur de noms global
-							numDotVar++;
 							//Génération du code suivant
 							genCode(g_node_nth_child(node,1));
 
 							break;
 
-						case OPERATION :
+						case OPERATION :							
+							printf("Operation\n");
+
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+
+							//Création & écriture du template
+							fprintf(fichier,"[label=\"%s\" shape=ellipse];",
+								(char*)g_node_nth_child(node,1)->data);
+
+							//Incrémentation du compteur de noms global
+							numDotVar++;
+
+							//Concaténation des liaisons
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//printf("liaison pere fils = %s\n",liaisonsPereFils);
+
+							//Génération du code suivant
 							genCode(g_node_nth_child(node,0));
-							fprintf(fichier,"%s ",(char*)g_node_nth_child(node,1)->data);
+							//Un appel à genCode augmente le compteur pas besoin de le ré-incrémenter ici
+							//Deuxième conaténation de liaison
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 							genCode(g_node_nth_child(node,2));
 							break;
+
 						case INSTRUCTION : 
 								printf("Instru\n");
                                 genCode(g_node_nth_child(node,0));
