@@ -58,7 +58,8 @@ node_55 [label="45000" shape=ellipse];
 node_56 [label="+" shape=ellipse];
 node_57 [label="j" shape=ellipse];
 node_58 [label="0" shape=ellipse];return 
-node_59 [label="0" shape=ellipse];
+node_59 [label="return" shape=trapezium color=blue];
+node_60 [label="0" shape=ellipse];
 
 node_0 -> node_1
 node_0 -> node_2
@@ -104,3 +105,4 @@ node_54 -> node_55
 node_54 -> node_56
 node_56 -> node_57
 node_56 -> node_58
+node_59 -> node_60

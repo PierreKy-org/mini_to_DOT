@@ -362,10 +362,22 @@ void genCode(GNode* node){
 							printf("Retour\n");
 							fprintf(fichier,"return ");
 							if (g_node_nth_child(node,0)){
-								genCode(g_node_nth_child(node,0));
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+
+							//Création & écriture du template
+							fprintf(fichier,"[label=\"return\" shape=trapezium color=blue];");
+
+							//Calcul de la relation père fils
+							numDotVar++;
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//Incrémentation du compteur de noms global
+							genCode(g_node_nth_child(node,0));
 							}
 							else{
-								printf("aucune valeur renseigner\n");
+								printf("aucune valeur renseignée\n");
 							}
 
 							break;
