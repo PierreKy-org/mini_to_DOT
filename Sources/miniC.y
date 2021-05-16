@@ -5,6 +5,8 @@
 #include <glib.h>
 #include "Structures/Stack.c"
 
+
+#define LIST_FCT 23
 #define BWHILE 22
 #define BFOR 21
 #define DEFAULTS 20
@@ -93,8 +95,11 @@ liste_declarations	:
 	|	
 
 liste_fonctions	:	
-		liste_fonctions fonction {$$ = $2;}
-|               fonction {$$ = $1;}
+		liste_fonctions fonction {$$ = g_node_new((void*) LIST_FCT);
+									g_node_append($$, $1);
+									g_node_append($$, $2);	}
+|               fonction {$$ = g_node_new((void*) LIST_FCT);
+								g_node_append($$, $1);	}
 ;
 declaration	:	
 		type liste_declarateurs ';'     {
@@ -331,6 +336,10 @@ void genCode(GNode* node){
 	char* nomLabel;
         if(node){
                 switch((long)node->data){
+						case LIST_FCT:
+							genCode(g_node_nth_child(node,0));
+							genCode(g_node_nth_child(node,1));
+							break;
 						case BWHILE:
 							printf("While\n");
 							nomVar = concat("node_",numToStr(numDotVar));
@@ -423,7 +432,7 @@ void genCode(GNode* node){
 							fprintf(fichier,"\n%s ",nomVar);
 							fprintf(fichier,"[label=\"Switch\" shape=ellipse];",nomLabel);
 
-							//tempo5 = strdup(dotbloc);
+							tempo5 = strdup(dotbloc);
 							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
 							dotbloc = strdup(nomVar);
 							numDotVar++;
@@ -450,14 +459,17 @@ void genCode(GNode* node){
 							fprintf(fichier,"[label=\"return\" shape=trapezium color=blue];");
 							if (g_node_nth_child(node,0)){
 
-							//Calcul de la relation père fils
-							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
-							numDotVar++;
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
-							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
-							//Incrémentation du compteur de noms global
-							genCode(g_node_nth_child(node,0));
+								//Calcul de la relation père fils
+								char* tempo7;
+								tempo7 = strdup(dotbloc);
+								liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+								dotbloc = strdup(nomVar);
+								numDotVar++;
+								liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+								//Incrémentation du compteur de noms global
+								genCode(g_node_nth_child(node,0));
+								dotbloc = strdup(tempo7);
+								free(tempo7);
 							}
 							else{
 								printf("aucune valeur renseignée\n");
@@ -540,6 +552,8 @@ void genCode(GNode* node){
 							break;
 						case COND_COMPARE:
 							printf("Cond compare\n");
+							char* tempo10;
+							tempo10 = strdup(dotbloc);
 							//Création du nom
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
@@ -550,21 +564,21 @@ void genCode(GNode* node){
 							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
 							
 							//Incrémentation du compteur de noms global
+							dotbloc = strdup(nomVar);
 							numDotVar++;
 
 							//Concaténation des liaisons
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 							//printf("liaison pere fils = %s\n",liaisonsPereFils);
 
 							//Génération du code suivant
 							genCode(g_node_nth_child(node,0));
 							//Deuxième conaténation de liaison
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 							//Un appel à genCode augmente le compteur pas besoin de le ré-incrémenter ici
 							genCode(g_node_nth_child(node,2));
+
+							dotbloc = strdup(tempo10);
+							free(tempo10); 
 							break;
                         case VARIABLE:
 							printf("Variable\n");
@@ -580,6 +594,10 @@ void genCode(GNode* node){
 							fprintf(fichier,"[label=\"%s\" shape=ellipse];",
 								(char*)g_node_nth_child(node,0)->data);
 							}
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+								
 							isCurrentConstNeg = 0;
 							//Une variable est un terminal -> On ne génère aucun code supplémentaire
 
@@ -603,6 +621,10 @@ void genCode(GNode* node){
 
 							//idem que pour Variable
 							}
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+								
 							isCurrentConstNeg = 0;
 							//Incrémentation du compteur de noms global
 							numDotVar++;
@@ -624,13 +646,19 @@ void genCode(GNode* node){
 							printf("Minus\n");
 							if(g_node_nth_child(node,1)->data == EXPRESSION){
 								//Création du nom
+								char* tempo13;
+								tempo13 = strdup(dotbloc);
+
 								nomVar = concat("node_",numToStr(numDotVar));
 								fprintf(fichier,"\n%s ",nomVar);
 								fprintf(fichier,"[label=\"-\" shape=ellipse];");
+								liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+								dotbloc = strdup(nomVar);
 								numDotVar++;
-								liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-								liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+								liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 								genCode(g_node_nth_child(node,1));
+								dotbloc = strdup(tempo13);
+								free(tempo13); 
 							}else{
 								isCurrentConstNeg = 1;
 								genCode(g_node_nth_child(node,1));
@@ -639,6 +667,8 @@ void genCode(GNode* node){
 							break;
                         case AFFECTATION:
 							printf("Affectation\n");
+							char* tempo12;
+							tempo12 = strdup(dotbloc);
 
 							//Création du nom
 							nomVar = concat("node_",numToStr(numDotVar));
@@ -650,27 +680,28 @@ void genCode(GNode* node){
 							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
 							
 							//Incrémentation du compteur de noms global
+							dotbloc = strdup(nomVar);
 							numDotVar++;
 
 							//Concaténation des liaisons
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 							//printf("liaison pere fils = %s\n",liaisonsPereFils);
 
 							//Génération du code suivant
 							genCode(g_node_nth_child(node,0));
 							//Deuxième conaténation de liaison
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 							//Un appel à genCode augmente le compteur pas besoin de le ré-incrémenter ici
 							genCode(g_node_nth_child(node,1));
+							dotbloc = strdup(tempo12);
+							free(tempo12); 
 							break;
 
 						case APPEL : ; //NE PAS SUPPRIMER CE ";"
 							printf("Appel\n");
 
 							//Création du nom
+							char* tempo8;
+							tempo8 = strdup(dotbloc);
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
 
@@ -680,21 +711,20 @@ void genCode(GNode* node){
 
 							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
 							//Concaténation des liaisons
-							numDotVar++;
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 							//printf("liaison pere fils = %s\n",liaisonsPereFils);
-
-							//Incrémentation du compteur de noms global
-							//Génération du code suivant
-							genCode(g_node_nth_child(node,1));
+							dotbloc = strdup(nomVar);
+							numDotVar++;
+						    genCode(g_node_nth_child(node,1)); 
+							dotbloc = strdup(tempo8);
+							free(tempo8); 
 
 							break;
 
 						case OPERATION :							
 							printf("Operation\n");
-
+							char* tempo9;
+							tempo9 = strdup(dotbloc);
 							//Création du nom
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
@@ -703,21 +733,25 @@ void genCode(GNode* node){
 							fprintf(fichier,"[label=\"%s\" shape=ellipse];",
 								(char*)g_node_nth_child(node,1)->data);
 
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							
 							//Incrémentation du compteur de noms global
+							dotbloc = strdup(nomVar);
 							numDotVar++;
-
+							
 							//Concaténation des liaisons
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+							
 							//printf("liaison pere fils = %s\n",liaisonsPereFils);
 
 							//Génération du code suivant
 							genCode(g_node_nth_child(node,0));
 							//Un appel à genCode augmente le compteur pas besoin de le ré-incrémenter ici
 							//Deuxième conaténation de liaison
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 							genCode(g_node_nth_child(node,2));
+							dotbloc = strdup(tempo9);
+							free(tempo9); 
+
 							break;
 
 						case INSTRUCTION : 
