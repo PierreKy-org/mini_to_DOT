@@ -557,14 +557,16 @@ int main (){
 		numDotVar = 0; //Permet de nommer les variables avec des noms différents (neud<i>)
 		liaisonsPereFils =""; //Sera remplit durant l'éxécution puis écrit à la fin du fichier
 		fichier = fopen("output.dot","w");
+		fprintf(fichier,"digraph G {\n");
+
 		table_hachage = g_hash_table_new(g_str_hash,g_str_equal);
 		Gstack = g_queue_new();
 		g_queue_push_tail(Gstack, table_hachage);
 		yyparse();
+		printf("Success.\n");
 
 		fprintf(fichier,"\n\n%s",liaisonsPereFils);
-
-		printf("Success.\n");
+		fprintf(fichier,"}");
 
 		return 0;
 }
