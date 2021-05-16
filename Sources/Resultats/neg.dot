@@ -23,23 +23,23 @@ node_19 [label="return" shape=trapezium color=blue];
 node_20 [label="0" shape=ellipse];
 
 node_0 -> node_1
-node_2 -> node_3
 node_1 -> node_2
+node_2 -> node_3
 node_2 -> node_4
-node_5 -> node_6
 node_1 -> node_5
-node_7 -> node_8
+node_5 -> node_6
 node_1 -> node_7
-node_9 -> node_10
+node_7 -> node_8
 node_1 -> node_9
+node_9 -> node_10
 node_10 -> node_11
 node_11 -> node_12
 node_11 -> node_13
-node_14 -> node_15
 node_1 -> node_14
+node_14 -> node_15
 node_15 -> node_16
 node_16 -> node_17
 node_16 -> node_18
-node_19 -> node_20
 node_1 -> node_19
+node_19 -> node_20
 }

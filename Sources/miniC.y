@@ -64,7 +64,7 @@ node_t* i;
 };
 
 %token<chaine> IDENTIFICATEUR INT VOID CONSTANTE
-%type<noeud> iteration bloc condition selection appel type affectation declaration saut liste_expressions  liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme 
+%type<noeud> iteration bloc condition selection appel type affectation declaration saut liste_expressions  liste_declarateurs instruction declarateur  liste_fonctions fonction liste_instructions variable expression programme  aux_instruction aux_selection aux_bloc
 %type<chaine> binary_op binary_rel binary_comp 
 
 %token FOR WHILE IF ELSE SWITCH CASE DEFAULT
@@ -185,6 +185,32 @@ iteration	:
 												g_node_append($$,$3);
 												g_node_append($$,$5);}
 ;
+
+aux_instruction : 
+		iteration {$$ = $1;}
+	|	aux_selection {$$ = $1;}
+	|	saut { $$ = $1;}
+	|	affectation ';' {$$ = $1; }
+	|	aux_bloc {$$ = $1;}
+	|	appel {$$ = $1;}
+;
+aux_selection : 
+		IF '(' condition ')' instruction %prec THEN { $$ = g_node_new((void*)SELECTION);
+														g_node_append($$,$3);
+														g_node_append($$,$5); }
+	|	IF '(' condition ')' instruction ELSE instruction { $$ = g_node_new((void*)SELECTION);
+														g_node_append($$,$3);
+														g_node_append($$,$5);
+														g_node_append($$,$7);  }
+	|	SWITCH '(' expression ')' instruction { $$ = g_node_new((void*)SWITCHS);
+														g_node_append($$,$3);
+														g_node_append($$,$5); }
+;
+aux_bloc : 
+	'{' liste_declarations aux_instruction '}' { $$ = g_node_new((void*)BLOC);
+													g_node_append($$, $3);}
+;
+
 selection	:	
 		IF '(' condition ')' instruction %prec THEN { $$ = g_node_new((void*)SELECTION);
 														g_node_append($$,$3);
@@ -196,7 +222,7 @@ selection	:
 	|	SWITCH '(' expression ')' instruction { $$ = g_node_new((void*)SWITCHS);
 														g_node_append($$,$3);
 														g_node_append($$,$5); }
-	|	CASE CONSTANTE ':' instruction { $$ = g_node_new((void*)CASES);
+	|	CASE CONSTANTE ':' aux_instruction { $$ = g_node_new((void*)CASES);
 											g_node_append_data($$,$2);
 											g_node_append($$,$4); }
 	|	DEFAULT ':' instruction { $$ = g_node_new((void*)DEFAULTS);
@@ -387,38 +413,44 @@ void genCode(GNode* node){
 							break;
 						case DEFAULTS:
 							printf("Default\n");
+							char* tempoDefault;
 							//Création du nom
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
-							//Création & écriture du template
 							fprintf(fichier,"[label=\"default\" shape=diamond];");
+
+							tempoDefault = strdup(dotbloc);
 							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
-							//Incrémentation du compteur de noms global
+							dotbloc = strdup(nomVar);
 							numDotVar++;
 							//Créer un lien 
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 							//Incrémentation du compteur de noms global
 							genCode(g_node_nth_child(node,0));
+							dotbloc = strdup(tempoDefault);
+							free(tempoDefault);
 							break;
 						case CASES :							
 							printf("Case\n");
+							char* tempoCase;
 							//Création du nom
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
 							nomLabel = concat("case ",g_node_nth_child(node,0)->data);
 							fprintf(fichier,"[label=\"%s\" shape=diamond];",nomLabel);
 
+                            tempoCase = strdup(dotbloc);
 							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
-							//Incrémentation du compteur de noms global
+                            dotbloc = strdup(nomVar);
 							numDotVar++;
 							//Créer un lien 
-							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							//liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 							//Incrémentation du compteur de noms global
 							genCode(g_node_nth_child(node,1));
+                            dotbloc = strdup(tempoCase);
+                            free(tempoCase);
 							break;
 
 					case SWITCHS :
@@ -432,9 +464,9 @@ void genCode(GNode* node){
                             liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
                             dotbloc = strdup(nomVar);
                             numDotVar++;
-                            liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-                            liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
-                            //liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+                            //liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+                            //liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+                            liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
                             //Genere le membre à gauche
                             genCode(g_node_nth_child(node,0));
                             //liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
@@ -788,8 +820,6 @@ void genCode(GNode* node){
 							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 
 							//Génération du code suivant
-
-							printf("Nombre de noeuds : %d",g_node_n_children(g_node_nth_child(node,2)));
 							genCode(g_node_nth_child(node,2));
 							break;
 					}

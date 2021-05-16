@@ -39,17 +39,17 @@ node_35 [label="return" shape=trapezium color=blue];
 node_36 [label="0" shape=ellipse];
 
 node_0 -> node_1
-node_2 -> node_3
 node_1 -> node_2
+node_2 -> node_3
 node_2 -> node_4
-node_5 -> node_6
 node_1 -> node_5
+node_5 -> node_6
 node_5 -> node_7
-node_8 -> node_9
 node_1 -> node_8
+node_8 -> node_9
 node_8 -> node_10
-node_11 -> node_12
 node_1 -> node_11
+node_11 -> node_12
 node_12 -> node_13
 node_13 -> node_14
 node_14 -> node_15
@@ -72,6 +72,6 @@ node_30 -> node_31
 node_31 -> node_32
 node_31 -> node_33
 node_30 -> node_34
-node_35 -> node_36
 node_1 -> node_35
+node_35 -> node_36
 }
