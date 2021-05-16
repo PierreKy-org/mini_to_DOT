@@ -81,11 +81,6 @@ node_t* i;
 
 programme	:	
 	|	liste_declarations liste_fonctions {
-		
-		if(g_node_nth_child($2,0)->data == INSTRUCTION){
-			//printf("chibrux maximus");
-		}
-		//printf("PROUT %s", g_node_nth_child($2,0)->data);
 		genCode($2);
 	}
 ;
