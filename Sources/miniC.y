@@ -94,7 +94,7 @@ liste_declarations	:
 
 liste_fonctions	:	
 		liste_fonctions fonction {$$ = $2;}
-|               fonction {$$ = g_node_nth_child($1,2);}
+|               fonction {$$ = $1}
 ;
 declaration	:	
 		type liste_declarateurs ';'     {
