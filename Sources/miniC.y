@@ -5,7 +5,7 @@
 #include <glib.h>
 #include "Structures/Stack.c"
 
-
+#define EXTERNF 24
 #define LIST_FCT 23
 #define BWHILE 22
 #define BFOR 21
@@ -33,7 +33,6 @@
 
 char* numToStr(int num);
 char *liaisonsPereFils;
-char* filename;
 int numDotVar;
 int isCurrentConstNeg;
 char* dotbloc;
@@ -83,6 +82,11 @@ node_t* i;
 
 programme	:	
 	|	liste_declarations liste_fonctions {
+		
+		if(g_node_nth_child($2,0)->data == INSTRUCTION){
+			//printf("chibrux maximus");
+		}
+		//printf("PROUT %s", g_node_nth_child($2,0)->data);
 		genCode($2);
 	}
 ;
@@ -141,7 +145,7 @@ fonction	:
 										g_node_append($$, $8);
 										}
 
-	|	EXTERN type IDENTIFICATEUR '(' liste_parms ')' ';' 
+	|	EXTERN type IDENTIFICATEUR '(' liste_parms ')' ';' {$$ = g_node_new((void*)EXTERNF);}
 ;
 type	:	
 		VOID 	{$$ = strdup("void");}
@@ -421,29 +425,29 @@ void genCode(GNode* node){
 							genCode(g_node_nth_child(node,1));
 							break;
 
-					case SWITCHS :
-                            printf("Switch\n");
-                            char* tempo5;
-                            nomVar = concat("node_",numToStr(numDotVar));
-                            fprintf(fichier,"\n%s ",nomVar);
-                            fprintf(fichier,"[label=\"Switch\" shape=ellipse];",nomLabel);
+						case SWITCHS :
+							printf("Switch\n");
+							char* tempo5;
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+							fprintf(fichier,"[label=\"Switch\" shape=ellipse];",nomLabel);
 
-                            tempo5 = strdup(dotbloc);
-                            liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
-                            dotbloc = strdup(nomVar);
-                            numDotVar++;
-                            liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-                            liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
-                            //liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
-                            //Genere le membre à gauche
-                            genCode(g_node_nth_child(node,0));
-                            //liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-                            //liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
-                            //Membre à droite
-                            genCode(g_node_nth_child(node,1));
-                            dotbloc = strdup(tempo5);
-                            free(tempo5);
-                            break;
+							tempo5 = strdup(dotbloc);
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							dotbloc = strdup(nomVar);
+							numDotVar++;
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+							//Genere le membre à gauche
+							genCode(g_node_nth_child(node,0));
+							//liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							//liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//Membre à droite
+							genCode(g_node_nth_child(node,1));
+							dotbloc = strdup(tempo5);
+							free(tempo5);
+							break;
 
 						case RETOUR :
 							printf("Retour\n");
@@ -642,19 +646,15 @@ void genCode(GNode* node){
 							printf("Minus\n");
 							if(g_node_nth_child(node,1)->data == EXPRESSION){
 								//Création du nom
-								char* tempo13;
-								tempo13 = strdup(dotbloc);
-
 								nomVar = concat("node_",numToStr(numDotVar));
 								fprintf(fichier,"\n%s ",nomVar);
 								fprintf(fichier,"[label=\"-\" shape=ellipse];");
 								liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
-								dotbloc = strdup(nomVar);
 								numDotVar++;
-								liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+								liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+								liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+								
 								genCode(g_node_nth_child(node,1));
-								dotbloc = strdup(tempo13);
-								free(tempo13); 
 							}else{
 								isCurrentConstNeg = 1;
 								genCode(g_node_nth_child(node,1));
@@ -796,18 +796,12 @@ void genCode(GNode* node){
 
 				}
 }
-int main(int argc, char *argv[]){ 
-		if(argv[1]==NULL){
-			filename = "Resultats/out.dot";
-		}else{
-			filename = concat("Resultats/",concat(argv[1],".dot"));
-		}
-
-		fichier = fopen(filename,"w");
+int main (){
 		dotbloc = "";
 		isCurrentConstNeg = 0;
 		numDotVar = 0; //Permet de nommer les variables avec des noms différents (neud<i>)
 		liaisonsPereFils =""; //Sera remplit durant l'éxécution puis écrit à la fin du fichier
+		fichier = fopen("output.dot","w");
 		fprintf(fichier,"digraph G {\n");
 
 		table_hachage = g_hash_table_new(g_str_hash,g_str_equal);

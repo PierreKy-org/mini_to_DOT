@@ -7,7 +7,7 @@ node_3 [label="tab" shape=ellipse];
 node_4 [label="tab" shape=ellipse];
 
 node_0 -> node_1
-node_2 -> node_3
 node_1 -> node_2
+node_2 -> node_3
 node_2 -> node_4
 }
