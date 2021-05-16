@@ -94,7 +94,7 @@ liste_declarations	:
 
 liste_fonctions	:	
 		liste_fonctions fonction {$$ = $2;}
-|               fonction {$$ = $1}
+|               fonction {$$ = $1;}
 ;
 declaration	:	
 		type liste_declarateurs ';'     {
@@ -471,15 +471,19 @@ void genCode(GNode* node){
 							break;
                         case VARIABLE:
 							printf("Variable\n");
-
 							//Création du nom
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
 
-							//Création & écriture du template
+							//Permet de gérer l'écriture d'entiers négatifs
+							if(isCurrentConstNeg==1){
+							fprintf(fichier,"[label=\"%s\" shape=ellipse];",
+								concat("-",g_node_nth_child(node,0)->data));
+							}else{
 							fprintf(fichier,"[label=\"%s\" shape=ellipse];",
 								(char*)g_node_nth_child(node,0)->data);
-
+							}
+							isCurrentConstNeg = 0;
 							//Une variable est un terminal -> On ne génère aucun code supplémentaire
 
 							//Incrémentation du compteur de noms global
