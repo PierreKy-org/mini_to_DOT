@@ -33,6 +33,7 @@
 
 char* numToStr(int num);
 char *liaisonsPereFils;
+char* filename;
 int numDotVar;
 int isCurrentConstNeg;
 char* dotbloc;
@@ -82,11 +83,6 @@ node_t* i;
 
 programme	:	
 	|	liste_declarations liste_fonctions {
-		
-		if(g_node_nth_child($2,0)->data == INSTRUCTION){
-			//printf("chibrux maximus");
-		}
-		//printf("PROUT %s", g_node_nth_child($2,0)->data);
 		genCode($2);
 	}
 ;
@@ -800,12 +796,18 @@ void genCode(GNode* node){
 
 				}
 }
-int main (){
+int main(int argc, char *argv[]){ 
+		if(argv[1]==NULL){
+			filename = "Resultats/out.dot";
+		}else{
+			filename = concat("Resultats/",concat(argv[1],".dot"));
+		}
+
+		fichier = fopen(filename,"w");
 		dotbloc = "";
 		isCurrentConstNeg = 0;
 		numDotVar = 0; //Permet de nommer les variables avec des noms différents (neud<i>)
 		liaisonsPereFils =""; //Sera remplit durant l'éxécution puis écrit à la fin du fichier
-		fichier = fopen("output.dot","w");
 		fprintf(fichier,"digraph G {\n");
 
 		table_hachage = g_hash_table_new(g_str_hash,g_str_equal);
