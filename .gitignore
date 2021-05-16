@@ -6,3 +6,4 @@ lex.yy.c
 miniC.tab.*
 compiler
 *.output
+Sources/output.dot

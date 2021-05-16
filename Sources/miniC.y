@@ -341,15 +341,21 @@ void genCode(GNode* node){
 							printf("For\n");
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
-
-							fprintf(fichier,"For ");
+							fprintf(fichier,"[label=\"FOR\" shape=ellipse color=black];");
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							//Concaténation des liaisons
+							numDotVar++;
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+							//printf("liaison pere fils = %s\n",liaisonsPereFils);
+							char* tempo;
+							tempo = strdup(dotbloc);
+							dotbloc = strdup(nomVar);
 							genCode(g_node_nth_child(node,0));
-							fprintf(fichier,"; ");
 							genCode(g_node_nth_child(node,1));
-							fprintf(fichier,"; ");
 							genCode(g_node_nth_child(node,2));
-						
 							genCode(g_node_nth_child(node,3));
+							dotbloc = strdup(tempo);
+							free(tempo);
 							break;
 
 						case BREAKS:
@@ -443,8 +449,19 @@ void genCode(GNode* node){
 							break;
 						case BLOC:
 							printf("Bloc\n");
+							char* tempo2;
+							tempo2 = strdup(dotbloc);
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+							fprintf(fichier,"[label=\"BLOC\" shape=ellipse color=black];");
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
 							
+							dotbloc = strdup(nomVar);
+							numDotVar++;
 							genCode(g_node_nth_child(node,0));
+							dotbloc = strdup(tempo2);
+							free(tempo2);
 							
 							break;
 						case SELECTION: 
@@ -472,8 +489,30 @@ void genCode(GNode* node){
 							break;
 						case COND_COMPARE:
 							printf("Cond compare\n");
+							//Création du nom
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+
+							//Création & écriture du template
+							fprintf(fichier,"[label=\"%s\" shape=ellipse];",(char*)g_node_nth_child(node,1)->data );
+
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							
+							//Incrémentation du compteur de noms global
+							numDotVar++;
+
+							//Concaténation des liaisons
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+							//printf("liaison pere fils = %s\n",liaisonsPereFils);
+
+							//Génération du code suivant
 							genCode(g_node_nth_child(node,0));
-							fprintf(fichier,"%s ",(char*)g_node_nth_child(node,1)->data);
+							//Deuxième conaténation de liaison
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							//Un appel à genCode augmente le compteur pas besoin de le ré-incrémenter ici
 							genCode(g_node_nth_child(node,2));
 							break;
                         case VARIABLE:
@@ -646,20 +685,26 @@ void genCode(GNode* node){
 							nomVar = concat("node_",numToStr(numDotVar));
 							fprintf(fichier,"\n%s ",nomVar);
 							
-							dotbloc = strdup(nomVar);
 							
 							//Création du label (nom de fonction + type)
 							nomLabel = concat(concat(g_node_nth_child(node,1)->data,", "),g_node_nth_child(node,0)->data);
+							
 							//Création & écriture du template
 							fprintf(fichier,"[label=\"%s\" shape=invtrapezium color=blue];",nomLabel);
+							numDotVar++;
+							liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
+							
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+							dotbloc = strdup(nomVar);
+							fprintf(fichier,"[label=\"BLOC\" shape=ellipse color=black];");
 							free(nomLabel);
 
 							//Incrémentation du compteur de noms global
 							numDotVar++;
 
 							//Concaténation des liaisons
-							//liaisonCourrante = concat(concat(concat(concat(nomVar," -> "),"node_"),numToStr(numDotVar)),"\n");
-							//liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
+							liaisonsPereFils = concat(liaisonsPereFils,liaisonCourrante);
 
 							//Génération du code suivant
 
