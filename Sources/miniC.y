@@ -333,9 +333,19 @@ void genCode(GNode* node){
                 switch((long)node->data){
 						case BWHILE:
 							printf("While\n");
-							fprintf(fichier,"while ");
+							nomVar = concat("node_",numToStr(numDotVar));
+							fprintf(fichier,"\n%s ",nomVar);
+							fprintf(fichier,"[label=\"WHILE\" shape=ellipse color=black];");
+							liasionDessus = concat(concat(concat(concat(dotbloc," -> "),"node_"),numToStr(numDotVar)),"\n");
+							numDotVar++;
+							liaisonsPereFils = concat(liaisonsPereFils,liasionDessus);
+							char* tempo3;
+							tempo3 = strdup(dotbloc);
+							dotbloc = strdup(nomVar);
 							genCode(g_node_nth_child(node,0));
 							genCode(g_node_nth_child(node,1));
+							dotbloc = strdup(tempo3);
+							free(tempo3);
 							break;
 						case BFOR:
 							printf("For\n");
